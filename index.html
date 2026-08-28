@@ -29,42 +29,114 @@
             </div>
             <div class="login-title">智能行业应用系统集成服务平台</div>
             <div class="login-subtitle">Intelligent Industry Application System Integration Platform</div>
-            <form class="login-form" id="loginForm" onsubmit="return false;">
+
+            <!-- 登录/注册 Tab 切换 -->
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-auth="login" onclick="switchAuth('login')">🔐 账号登录</div>
+                <div class="auth-tab" data-auth="register" onclick="switchAuth('register')">✨ 注册新账号</div>
+                <div class="auth-tab-indicator"></div>
+            </div>
+
+            <!-- 登录表单 -->
+            <form class="login-form auth-panel active" id="panel-login" onsubmit="return false;">
                 <div class="login-field">
                     <span class="login-ico">👤</span>
                     <input type="text" id="lg_username" placeholder="登录名 (默认: admin / manager / ops / guest)" autocomplete="username">
                 </div>
                 <div class="login-field">
                     <span class="login-ico">🔒</span>
-                    <input type="password" id="lg_password" placeholder="登录密码 (默认账号见提示)" autocomplete="current-password">
+                    <input type="password" id="lg_password" placeholder="登录密码 (默认账号见下方卡片)" autocomplete="current-password">
                 </div>
                 <div class="login-field captcha-row">
                     <span class="login-ico">🔤</span>
                     <input type="text" id="lg_captcha" placeholder="验证码" style="flex:1;">
-                    <div class="captcha-box" id="captchaBox" onclick="refreshCaptcha()" title="点击刷新">A3x9</div>
+                    <div class="captcha-box" id="captchaBox" onclick="refreshCaptcha('lg')" title="点击刷新">A3x9</div>
                 </div>
                 <div class="login-options">
                     <label class="remember-row"><input type="checkbox" id="lg_remember" checked> 记住登录状态 (8小时)</label>
-                    <span class="forgot-link" onclick="alert('请联系超级管理员 [admin] 重置密码')">忘记密码?</span>
+                    <span class="forgot-link" onclick="alert('请联系超级管理员 [admin] 重置密码，或在登录页右侧 Tab「注册新账号」注册新账号')">忘记密码?</span>
                 </div>
                 <div class="login-tip" id="loginTip" style="display:none;"></div>
                 <button class="login-btn" type="submit" id="loginBtn" onclick="doLogin()">
                     <span id="loginBtnText">登 录</span>
                 </button>
+                <div class="switch-to-link">
+                    还没有账号? <a href="javascript:;" onclick="switchAuth('register')">立即注册 →</a>
+                </div>
             </form>
-            <div class="login-accounts">
+
+            <!-- 注册表单 -->
+            <form class="login-form auth-panel" id="panel-register" onsubmit="return false;" style="display:none;">
+                <div class="auth-rule-tip">
+                    <strong>ℹ️ 注册规则：</strong>新账号默认角色为 <span class="role-chip role-viewer">👁️ 访客</span>（仅大屏只读权限），申请升级请联系管理员。
+                </div>
+                <div class="reg-2col">
+                    <div class="login-field">
+                        <span class="login-ico">👤</span>
+                        <input type="text" id="rg_username" placeholder="登录名 * (3-20位字母数字下划线)">
+                    </div>
+                    <div class="login-field">
+                        <span class="login-ico">🏷️</span>
+                        <input type="text" id="rg_nickname" placeholder="显示名 * (中文名即可)">
+                    </div>
+                </div>
+                <div class="reg-2col">
+                    <div class="login-field">
+                        <span class="login-ico">🔐</span>
+                        <input type="password" id="rg_password" placeholder="密码 * (≥6位, 含字母+数字)">
+                    </div>
+                    <div class="login-field">
+                        <span class="login-ico">🔁</span>
+                        <input type="password" id="rg_password2" placeholder="再次输入密码 *">
+                    </div>
+                </div>
+                <div class="reg-2col">
+                    <div class="login-field">
+                        <span class="login-ico">📧</span>
+                        <input type="email" id="rg_email" placeholder="邮箱 (可选，用于找回密码)">
+                    </div>
+                    <div class="login-field">
+                        <span class="login-ico">📱</span>
+                        <input type="text" id="rg_phone" placeholder="手机号 (可选)">
+                    </div>
+                </div>
+                <div class="login-field">
+                    <span class="login-ico">🏢</span>
+                    <input type="text" id="rg_dept" placeholder="所属部门 / 公司 (可选)">
+                </div>
+                <div class="login-field captcha-row">
+                    <span class="login-ico">🔤</span>
+                    <input type="text" id="rg_captcha" placeholder="验证码 *" style="flex:1;">
+                    <div class="captcha-box" id="captchaBox_rg" onclick="refreshCaptcha('rg')" title="点击刷新">r9Kx</div>
+                </div>
+                <label class="agree-row">
+                    <input type="checkbox" id="rg_agree">
+                    我已阅读并同意 <a href="javascript:;" onclick="alert('用户协议：\\n\\n1. 本平台仅限演示用途，注册数据存储在您当前的浏览器本地(localStorage)，清空缓存会丢失。\\n2. 新注册账号默认为访客角色，升级权限请联系超管。\\n3. 请勿使用真实敏感密码。\\n4. 管理员有权对违规账号进行禁用/移除。')">《用户服务协议》</a>
+                    和 <a href="javascript:;" onclick="alert('隐私政策：注册信息仅保存在您本地浏览器，不会上传到任何服务器。')">《隐私政策》</a>
+                </label>
+                <div class="login-tip" id="registerTip" style="display:none;"></div>
+                <button class="login-btn" type="submit" id="registerBtn" onclick="doRegister()">
+                    <span id="registerBtnText">✨ 提交注册</span>
+                </button>
+                <div class="switch-to-link">
+                    已经有账号? <a href="javascript:;" onclick="switchAuth('login')">← 返回登录</a>
+                </div>
+            </form>
+
+            <!-- 登录 Tab 显示演示账号 -->
+            <div class="login-accounts" id="loginAccountsBlock">
                 <div class="acc-title">🎯 默认演示账号 (密码见括号内)</div>
                 <div class="acc-grid">
-                    <div class="acc-card" onclick="fillAccount('admin','Admin@123')">
+                    <div class="acc-card" onclick="switchAuth('login');fillAccount('admin','Admin@123')">
                         <b>admin</b><span>超级管理员 · (Admin@123)</span>
                     </div>
-                    <div class="acc-card" onclick="fillAccount('manager','Manager@123')">
+                    <div class="acc-card" onclick="switchAuth('login');fillAccount('manager','Manager@123')">
                         <b>manager</b><span>系统管理员 · (Manager@123)</span>
                     </div>
-                    <div class="acc-card" onclick="fillAccount('ops','Ops@123')">
+                    <div class="acc-card" onclick="switchAuth('login');fillAccount('ops','Ops@123')">
                         <b>ops</b><span>运维人员 · (Ops@123)</span>
                     </div>
-                    <div class="acc-card" onclick="fillAccount('guest','Guest@123')">
+                    <div class="acc-card" onclick="switchAuth('login');fillAccount('guest','Guest@123')">
                         <b>guest</b><span>访客 · (Guest@123)</span>
                     </div>
                 </div>
@@ -1436,7 +1508,7 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width:54px;">头像</th><th>用户</th><th>角色</th>
+                                <th style="width:54px;">头像</th><th>用户</th><th>角色</th><th>来源</th>
                                 <th>部门</th><th>邮箱</th><th>状态</th>
                                 <th>最近登录</th><th>创建日期</th><th style="width:180px;">操作</th>
                             </tr>

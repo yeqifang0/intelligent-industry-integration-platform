@@ -205,20 +205,45 @@ document.addEventListener('click', (ev) => {
     if (mi) mi.click();
 });
 
-// ======== 登录/登出 ========
-window.currentCaptcha = '';
-function refreshCaptcha() {
+// ======== 登录/登出/注册 ========
+window.currentCaptcha = { lg: '', rg: '' };
+function refreshCaptcha(kind) {
+    kind = kind || 'lg';
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
     let s = '';
     for (let i = 0; i < 4; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
-    window.currentCaptcha = s;
-    const box = document.getElementById('captchaBox');
+    window.currentCaptcha[kind] = s;
+    const boxId = kind === 'rg' ? 'captchaBox_rg' : 'captchaBox';
+    const box = document.getElementById(boxId);
     if (box) {
         box.textContent = s;
         box.style.background = `hsl(${Math.floor(Math.random()*360)},50%,25%)`;
     }
 }
 window.refreshCaptcha = refreshCaptcha;
+
+// ======== Tab 切换：登录 <-> 注册 ========
+function switchAuth(view) {
+    const tabs = document.querySelector('.auth-tabs');
+    if (!tabs) return;
+    tabs.dataset.view = view;
+    tabs.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.auth === view));
+    document.getElementById('panel-login').style.display = view === 'login' ? '' : 'none';
+    document.getElementById('panel-login').classList.toggle('active', view === 'login');
+    document.getElementById('panel-register').style.display = view === 'register' ? '' : 'none';
+    document.getElementById('panel-register').classList.toggle('active', view === 'register');
+    const accounts = document.getElementById('loginAccountsBlock');
+    if (accounts) accounts.style.display = view === 'login' ? '' : 'none';
+    // 切换后分别刷新对应验证码 & 清空tip
+    if (view === 'login') {
+        refreshCaptcha('lg');
+        document.getElementById('loginTip').style.display = 'none';
+    } else {
+        refreshCaptcha('rg');
+        document.getElementById('registerTip').style.display = 'none';
+    }
+}
+window.switchAuth = switchAuth;
 
 function fillAccount(u, p) {
     document.getElementById('lg_username').value = u;
@@ -228,7 +253,7 @@ window.fillAccount = fillAccount;
 
 function showLogin() {
     document.getElementById('loginMask').style.display = 'flex';
-    refreshCaptcha();
+    switchAuth('login');
     document.getElementById('lg_password').value = '';
     document.getElementById('lg_captcha').value = '';
     document.getElementById('loginTip').style.display = 'none';
@@ -242,12 +267,12 @@ async function doLogin() {
     const btn = document.getElementById('loginBtn');
     const tip = document.getElementById('loginTip');
 
-    if (!u || !p) { showLoginTip('请输入用户名和密码', 'err'); return; }
-    if (!cap) { showLoginTip('请输入验证码', 'err'); return; }
-    if (cap.toLowerCase() !== (window.currentCaptcha || '').toLowerCase()) {
-        showLoginTip('验证码错误，已刷新', 'err');
+    if (!u || !p) { showLoginTip('请输入用户名和密码', 'err', 'lg'); return; }
+    if (!cap) { showLoginTip('请输入验证码', 'err', 'lg'); return; }
+    if (cap.toLowerCase() !== (window.currentCaptcha.lg || '').toLowerCase()) {
+        showLoginTip('验证码错误，已刷新', 'err', 'lg');
         document.getElementById('lg_captcha').value = '';
-        refreshCaptcha();
+        refreshCaptcha('lg');
         return;
     }
     btn.disabled = true;
@@ -259,26 +284,93 @@ async function doLogin() {
 
     if (res.ok) {
         cachedUser = null; // 清空app级缓存
-        showLoginTip('登录成功，正在进入系统...', 'ok');
+        showLoginTip('登录成功，正在进入系统...', 'ok', 'lg');
         setTimeout(() => {
             document.getElementById('loginMask').style.display = 'none';
             afterLogin();
         }, 500);
     } else {
-        showLoginTip(res.msg || '登录失败', 'err');
+        showLoginTip(res.msg || '登录失败', 'err', 'lg');
         document.getElementById('lg_password').value = '';
-        refreshCaptcha();
+        refreshCaptcha('lg');
         document.getElementById('lg_captcha').value = '';
     }
 }
 window.doLogin = doLogin;
 
-function showLoginTip(msg, type) {
-    const tip = document.getElementById('loginTip');
+function showLoginTip(msg, type, kind) {
+    kind = kind || 'lg';
+    const tip = document.getElementById(kind === 'rg' ? 'registerTip' : 'loginTip');
+    if (!tip) return;
     tip.textContent = msg;
     tip.style.display = 'block';
     tip.className = 'login-tip ' + (type === 'ok' ? 'ok' : 'err');
 }
+
+// ======== 注册提交 ========
+async function doRegister() {
+    const username = document.getElementById('rg_username').value;
+    const nickname = document.getElementById('rg_nickname').value;
+    const password = document.getElementById('rg_password').value;
+    const password2 = document.getElementById('rg_password2').value;
+    const email = document.getElementById('rg_email').value;
+    const phone = document.getElementById('rg_phone').value;
+    const dept = document.getElementById('rg_dept').value;
+    const captcha = document.getElementById('rg_captcha').value.trim();
+    const agree = document.getElementById('rg_agree').checked;
+    const btn = document.getElementById('registerBtn');
+    const btnText = document.getElementById('registerBtnText');
+
+    if (!agree) { showLoginTip('请先阅读并勾选《用户服务协议》和《隐私政策》', 'err', 'rg'); return; }
+    if (!captcha) { showLoginTip('请输入验证码', 'err', 'rg'); return; }
+    if (captcha.toLowerCase() !== (window.currentCaptcha.rg || '').toLowerCase()) {
+        showLoginTip('验证码错误，已刷新', 'err', 'rg');
+        document.getElementById('rg_captcha').value = '';
+        refreshCaptcha('rg');
+        return;
+    }
+
+    btn.disabled = true;
+    btnText.textContent = '注册中...';
+    await new Promise(r => setTimeout(r, 400));
+    const res = await Auth.register({ username, nickname, password, password2, email, phone, dept });
+    btn.disabled = false;
+    btnText.textContent = '✨ 提交注册';
+
+    if (res.ok) {
+        showLoginTip(`🎉 注册成功！账号 [${res.user.username}] 已创建，默认角色「访客」。3秒后切换到登录页...`, 'ok', 'rg');
+        // 清空表单
+        ['rg_username','rg_nickname','rg_password','rg_password2','rg_email','rg_phone','rg_dept','rg_captcha','rg_agree'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (el.type === 'checkbox') el.checked = false;
+            else el.value = '';
+        });
+        refreshCaptcha('rg');
+        setTimeout(() => {
+            // 自动填充到登录框，方便立即登录
+            fillAccount(res.user.username, '');
+            document.getElementById('lg_password').focus();
+            switchAuth('login');
+            showLoginTip(`注册成功！请使用新账号 [${res.user.username}] 登录`, 'ok', 'lg');
+        }, 2500);
+    } else {
+        showLoginTip(res.msg || '注册失败，请检查输入', 'err', 'rg');
+        // 字段高亮
+        if (res.field) {
+            const el = document.getElementById('rg_' + res.field);
+            if (el) {
+                el.focus();
+                el.style.transition = 'box-shadow 0.2s';
+                el.style.boxShadow = '0 0 0 3px rgba(255,92,122,0.25)';
+                setTimeout(() => { el.style.boxShadow = ''; }, 1500);
+            }
+        }
+        refreshCaptcha('rg');
+        document.getElementById('rg_captcha').value = '';
+    }
+}
+window.doRegister = doRegister;
 
 function doLogout() {
     if (!confirm('确认退出登录？')) return;

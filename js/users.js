@@ -43,6 +43,12 @@ function renderUserList() {
             (!isSuper || canSuperEdit)
         );
         const canDelThis = canDelete && !isSelf && (!isSuper || canSuperEdit);
+        const src = u.source || (u.id && u.id.match(/^U\d{3}$/) ? 'seed' : 'registered');
+        const srcBadge = src === 'registered'
+            ? `<span class="source-badge src-reg" title="用户通过注册页自助注册">🧾 自注册</span>`
+            : src === 'admin_created'
+                ? `<span class="source-badge src-admin" title="由管理员创建 ${u.createdBy ? '（创建人：'+u.createdBy+'）' : ''}">👤 管理员建</span>`
+                : `<span class="source-badge src-seed" title="系统内置默认账户">🛠️ 系统内置</span>`;
         return `
             <tr>
                 <td><div class="usr-avatar" style="background:linear-gradient(135deg, ${roleMeta.color}55, ${roleMeta.color}22);color:${roleMeta.color}">${u.nickname.charAt(0)}</div></td>
@@ -51,6 +57,7 @@ function renderUserList() {
                     <div style="font-size:11px;color:var(--text-dim);font-family:Consolas;">${u.username}</div>
                 </td>
                 <td><span class="role-pill" style="background:${roleMeta.color}22;color:${roleMeta.color};border:1px solid ${roleMeta.color}55">${roleMeta.label}</span></td>
+                <td>${srcBadge}</td>
                 <td style="font-size:12px;">${u.dept || '-'}</td>
                 <td style="font-size:11px;font-family:Consolas;color:var(--text-sub);">${u.email || '-'}</td>
                 <td><span class="status-pill ${u.enabled ? 'success' : 'warning'}">${u.enabled ? '启用' : '禁用'}</span></td>
@@ -149,12 +156,15 @@ async function saveUserModal() {
 
         const newId = 'U' + String(users.length + 1).padStart(3, '0') + '_' + Date.now().toString().slice(-4);
         const hashed = await Auth.sha256(p1);
+        const me = Auth.currentUser();
         users.push({
             id: newId, username, nickname, role, password: hashed, enabled,
             dept: get('f_dept'), phone: get('f_phone'), email: get('f_email'),
-            remark: get('f_remark'), createdAt: T.nowFull(), lastLogin: null
+            remark: get('f_remark'), createdAt: T.nowFull(), lastLogin: null,
+            source: 'admin_created',
+            createdBy: me ? me.username : 'system'
         });
-        pushLog('PLAT', 'SUCCESS', `新建用户 [${username}/${nickname}] 成功，角色: ${Auth.ROLES[role].label}`);
+        pushLog('PLAT', 'SUCCESS', `管理员 [${me ? me.username : 'system'}] 新建用户 [${username}/${nickname}] 成功，角色: ${Auth.ROLES[role].label}`);
     }
     Auth.saveUsers(users);
     renderUserList();
