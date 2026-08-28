@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能行业应用系统集成服务平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="top-header">
+        <div class="header-left">
+            <div class="logo">
+                <svg viewBox="0 0 40 40" width="40" height="40">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#0066ff;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" fill="url(#logoGrad)" stroke="#00d4ff" stroke-width="1"/>
+                    <circle cx="20" cy="20" r="8" fill="#ffffff" opacity="0.9"/>
+                    <circle cx="20" cy="20" r="4" fill="url(#logoGrad)"/>
+                </svg>
+            </div>
+            <div class="header-title">
+                <h1>智能行业应用系统集成服务平台</h1>
+                <p>Intelligent Industry Application System Integration Service Platform</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="status-indicator">
+                <span class="status-dot online"></span>
+                <span>系统运行正常</span>
+            </div>
+            <div class="header-time" id="currentTime">--:--:--</div>
+            <div class="user-info">
+                <div class="avatar">A</div>
+                <span>管理员</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- 左侧菜单 -->
+        <aside class="sidebar">
+            <nav class="menu">
+                <div class="menu-item active" data-page="dashboard">
+                    <span class="menu-icon">📊</span>
+                    <span class="menu-text">驾驶舱大屏</span>
+                    <span class="menu-badge">实时</span>
+                </div>
+                <div class="menu-section">专利成果模块</div>
+                <div class="menu-item" data-page="integration">
+                    <span class="menu-icon">🧠</span>
+                    <span class="menu-text">自适应集成中心</span>
+                    <span class="menu-tag tag-I">Ⅰ类</span>
+                </div>
+                <div class="menu-item" data-page="chip">
+                    <span class="menu-icon">🔌</span>
+                    <span class="menu-text">芯片与数据链路</span>
+                    <span class="menu-tag tag-I">Ⅰ类</span>
+                </div>
+                <div class="menu-item" data-page="devices">
+                    <span class="menu-icon">📦</span>
+                    <span class="menu-text">边缘设备管理</span>
+                    <span class="menu-tag tag-II">Ⅱ类</span>
+                </div>
+                <div class="menu-section">系统工具</div>
+                <div class="menu-item" data-page="algorithm">
+                    <span class="menu-icon">📐</span>
+                    <span class="menu-text">核心算法流程</span>
+                </div>
+                <div class="menu-item" data-page="industry">
+                    <span class="menu-icon">🏭</span>
+                    <span class="menu-text">行业方案库</span>
+                </div>
+                <div class="menu-item" data-page="logs">
+                    <span class="menu-icon">📋</span>
+                    <span class="menu-text">运行日志</span>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="version-info">
+                    <div>版本 V1.0.0</div>
+                    <div class="soft-auth">© 软件著作权登记</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="content-area" id="contentArea">
+
+            <!-- ========== 驾驶舱大屏 ========== -->
+            <section class="page page-dashboard active" id="page-dashboard">
+                <div class="page-header">
+                    <h2>数据驾驶舱 · 全局监控</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-primary">▶ 开始演示</button>
+                        <button class="btn btn-outline">全屏展示</button>
+                    </div>
+                </div>
+
+                <!-- 四大成果卡片 -->
+                <div class="patents-row">
+                    <div class="patent-card type-I">
+                        <div class="patent-level">Ⅰ类发明专利</div>
+                        <div class="patent-name">跨平台人工智能行业应用<br>自适应集成系统</div>
+                        <div class="patent-role">总指挥大脑 · 万能转换插头</div>
+                        <div class="patent-stat"><span class="stat-num" id="adaptionCount">0</span><span>次适配完成</span></div>
+                    </div>
+                    <div class="patent-card type-I">
+                        <div class="patent-level">Ⅰ类布图设计</div>
+                        <div class="patent-name">人工智能模拟信号<br>预处理芯片</div>
+                        <div class="patent-role">末梢神经 · 第一道过滤器</div>
+                        <div class="patent-stat"><span class="stat-num" id="chipProcessCount">0</span><span>万条数据过滤</span></div>
+                    </div>
+                    <div class="patent-card type-II">
+                        <div class="patent-level">Ⅱ类实用新型</div>
+                        <div class="patent-name">边缘计算<br>控制设备</div>
+                        <div class="patent-role">强壮躯干 · 现场驻场专家</div>
+                        <div class="patent-stat"><span class="stat-num" id="deviceOnlineCount">0</span><span>台在线设备</span></div>
+                    </div>
+                    <div class="patent-card type-soft">
+                        <div class="patent-level">Ⅱ类软件著作权</div>
+                        <div class="patent-name">智能行业应用系统<br>集成服务平台</div>
+                        <div class="patent-role">可视化脸面 · 调度大厅</div>
+                        <div class="patent-stat"><span class="stat-num" id="apiCallCount">0</span><span>次API调用</span></div>
+                    </div>
+                </div>
+
+                <!-- KPI指标行 -->
+                <div class="kpi-row">
+                    <div class="kpi-card">
+                        <div class="kpi-icon">🖥️</div>
+                        <div class="kpi-content">
+                            <div class="kpi-label">接入设备总数</div>
+                            <div class="kpi-value"><span id="totalDevices">0</span><span class="kpi-unit">台</span></div>
+                            <div class="kpi-trend up">↑ 12.5% 较昨日</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">🤖</div>
+                        <div class="kpi-content">
+                            <div class="kpi-label">已部署AI模型</div>
+                            <div class="kpi-value"><span id="totalModels">0</span><span class="kpi-unit">个</span></div>
+                            <div class="kpi-trend up">↑ 3 个新模型</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">⚠️</div>
+                        <div class="kpi-content">
+                            <div class="kpi-label">今日预警次数</div>
+                            <div class="kpi-value warning"><span id="alertCount">0</span><span class="kpi-unit">次</span></div>
+                            <div class="kpi-trend down">↓ 8.2% 较昨日</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon">🏭</div>
+                        <div class="kpi-content">
+                            <div class="kpi-label">覆盖行业场景</div>
+                            <div class="kpi-value"><span id="totalIndustries">0</span><span class="kpi-unit">个</span></div>
+                            <div class="kpi-trend up">↑ 新增2行业</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中间三栏 -->
+                <div class="dash-grid-3">
+                    <div class="dash-panel">
+                        <div class="panel-title">
+                            <span>🗺️ 设备地理分布</span>
+                            <div class="panel-tabs">
+                                <span class="tab active">全国</span>
+                                <span class="tab">按省份</span>
+                            </div>
+                        </div>
+                        <div id="mapChart" class="chart-box" style="height:320px;"></div>
+                    </div>
+                    <div class="dash-panel">
+                        <div class="panel-title">
+                            <span>📈 实时数据流</span>
+                            <div class="panel-tabs">
+                                <span class="tab active">5分钟</span>
+                                <span class="tab">1小时</span>
+                                <span class="tab">今日</span>
+                            </div>
+                        </div>
+                        <div id="realtimeChart" class="chart-box" style="height:320px;"></div>
+                    </div>
+                    <div class="dash-panel">
+                        <div class="panel-title">
+                            <span>🏭 行业场景占比</span>
+                        </div>
+                        <div id="industryChart" class="chart-box" style="height:320px;"></div>
+                    </div>
+                </div>
+
+                <!-- 底部两栏 -->
+                <div class="dash-grid-2">
+                    <div class="dash-panel">
+                        <div class="panel-title">
+                            <span>🔗 芯片预处理效果对比（原始 vs 滤波后）</span>
+                            <span class="chip-tag">Ⅰ类 · 预处理芯片</span>
+                        </div>
+                        <div id="signalChart" class="chart-box" style="height:280px;"></div>
+                    </div>
+                    <div class="dash-panel">
+                        <div class="panel-title">
+                            <span>⚡ 实时系统日志</span>
+                        </div>
+                        <div class="log-box" id="dashLogBox"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== 自适应集成中心 ========== -->
+            <section class="page page-integration" id="page-integration">
+                <div class="page-header">
+                    <div>
+                        <h2>🧠 跨平台人工智能行业应用自适应集成中心</h2>
+                        <p class="page-desc">Ⅰ类发明专利 · 核心算法载体：自动识别设备协议、智能适配AI应用，将"手写代码集成"变成"拖拽式配置"</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="runIntegrationDemo()">▶ 运行算法演示</button>
+                    </div>
+                </div>
+
+                <div class="integration-layout">
+                    <!-- 设备端 -->
+                    <div class="panel-zone">
+                        <div class="zone-title">📡 现场设备（方言输入）</div>
+                        <div class="device-list" id="deviceSourceList"></div>
+                    </div>
+
+                    <!-- 中间算法画布 -->
+                    <div class="panel-canvas">
+                        <div class="zone-title center-title">⚙️ 自适应集成算法引擎</div>
+                        <div class="canvas-area" id="canvasArea">
+                            <div class="flow-step step-input">
+                                <div class="step-label">STEP 1</div>
+                                <div class="step-name">设备接入识别</div>
+                                <div class="step-detail" id="step1Detail">等待输入...</div>
+                            </div>
+                            <div class="flow-arrow">▼ 数据样本</div>
+                            <div class="flow-step step-process">
+                                <div class="step-label">STEP 2</div>
+                                <div class="step-name">数据指纹提取</div>
+                                <div class="step-detail" id="step2Detail">等待输入...</div>
+                            </div>
+                            <div class="flow-arrow">▼ 特征向量</div>
+                            <div class="flow-step step-process">
+                                <div class="step-label">STEP 3</div>
+                                <div class="step-name">协议自动匹配</div>
+                                <div class="step-detail" id="step3Detail">等待输入...</div>
+                            </div>
+                            <div class="flow-arrow">▼ 驱动匹配</div>
+                            <div class="flow-step step-process">
+                                <div class="step-label">STEP 4</div>
+                                <div class="step-name">数据格式转换</div>
+                                <div class="step-detail" id="step4Detail">等待输入...</div>
+                            </div>
+                            <div class="flow-arrow">▼ 标准输出</div>
+                            <div class="flow-step step-output">
+                                <div class="step-label">STEP 5</div>
+                                <div class="step-name">AI应用对接</div>
+                                <div class="step-detail" id="step5Detail">等待接入...</div>
+                            </div>
+                        </div>
+                        <div class="algorithm-log" id="algorithmLog">
+                            <div class="log-header">🔍 算法执行日志</div>
+                            <div class="log-body" id="algoLogBody"></div>
+                        </div>
+                    </div>
+
+                    <!-- AI应用端 -->
+                    <div class="panel-zone">
+                        <div class="zone-title">🎯 AI应用（普通话输出）</div>
+                        <div class="ai-list" id="aiTargetList"></div>
+                    </div>
+                </div>
+
+                <!-- 集成结果表 -->
+                <div class="dash-panel mt-20">
+                    <div class="panel-title">
+                        <span>✅ 已完成适配的 设备→AI 组合清单</span>
+                        <span class="sub-count">共 <span id="integrationCount">0</span> 条</span>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th><th>现场设备</th><th>协议类型</th><th>接入AI算法</th><th>转换状态</th><th>最近心跳</th><th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="integrationTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ========== 芯片与数据链路 ========== -->
+            <section class="page page-chip" id="page-chip">
+                <div class="page-header">
+                    <div>
+                        <h2>🔌 人工智能模拟信号预处理芯片</h2>
+                        <p class="page-desc">Ⅰ类集成电路布图设计 · 边缘硬件最底层电路支撑：物理世界→干净数字信号的第一道关口</p>
+                    </div>
+                    <div class="header-actions">
+                        <label class="switch-label"><input type="checkbox" id="noiseToggle" checked> 注入噪声模拟</label>
+                        <label class="switch-label"><input type="checkbox" id="filterToggle" checked> 启用芯片滤波</label>
+                    </div>
+                </div>
+
+                <div class="chip-layout">
+                    <!-- 芯片结构图 -->
+                    <div class="chip-diagram">
+                        <div class="chip-title">🔬 芯片内部电路图（布图设计）</div>
+                        <div class="chip-svg-wrap">
+                            <svg viewBox="0 0 600 400" width="100%" height="100%">
+                                <!-- 输入接口 -->
+                                <g transform="translate(20,150)">
+                                    <rect width="40" height="100" fill="#ff6b6b" rx="5"/>
+                                    <text x="20" y="55" text-anchor="middle" fill="#fff" font-size="12">模拟信号</text>
+                                    <text x="20" y="75" text-anchor="middle" fill="#fff" font-size="11">INPUT</text>
+                                </g>
+                                <!-- 连线 -->
+                                <line x1="60" y1="170" x2="100" y2="170" stroke="#00d4ff" stroke-width="3" marker-end="url(#arrow)"/>
+                                <line x1="180" y1="170" x2="220" y2="170" stroke="#00d4ff" stroke-width="3"/>
+                                <line x1="300" y1="170" x2="340" y2="170" stroke="#00d4ff" stroke-width="3"/>
+                                <line x1="420" y1="170" x2="460" y2="170" stroke="#00d4ff" stroke-width="3"/>
+                                <defs>
+                                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                        <path d="M0,0 L0,6 L9,3 z" fill="#00d4ff"/>
+                                    </marker>
+                                </defs>
+                                <!-- 模块1：放大 -->
+                                <g transform="translate(100,140)">
+                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modAmp"/>
+                                    <text x="40" y="25" text-anchor="middle" fill="#fff" font-size="13">信号放大</text>
+                                    <text x="40" y="45" text-anchor="middle" fill="#00d4ff" font-size="10">Amplifier</text>
+                                </g>
+                                <!-- 模块2：滤波 -->
+                                <g transform="translate(220,140)">
+                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modFilter"/>
+                                    <text x="40" y="25" text-anchor="middle" fill="#fff" font-size="13">低通滤波</text>
+                                    <text x="40" y="45" text-anchor="middle" fill="#00d4ff" font-size="10">Low-Pass</text>
+                                </g>
+                                <!-- 模块3：采样 -->
+                                <g transform="translate(340,140)">
+                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modADC"/>
+                                    <text x="40" y="25" text-anchor="middle" fill="#fff" font-size="13">AD采样</text>
+                                    <text x="40" y="45" text-anchor="middle" fill="#00d4ff" font-size="10">ADC 12Bit</text>
+                                </g>
+                                <!-- 模块4：数字滤波 -->
+                                <g transform="translate(460,140)">
+                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modDSP"/>
+                                    <text x="40" y="25" text-anchor="middle" fill="#fff" font-size="13">数字滤波</text>
+                                    <text x="40" y="45" text-anchor="middle" fill="#00d4ff" font-size="10">DSP Core</text>
+                                </g>
+                                <!-- 输出 -->
+                                <line x1="540" y1="170" x2="580" y2="170" stroke="#00ff88" stroke-width="3" marker-end="url(#arrow2)"/>
+                                <defs>
+                                    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                        <path d="M0,0 L0,6 L9,3 z" fill="#00ff88"/>
+                                    </marker>
+                                </defs>
+                                <g transform="translate(550,150)">
+                                    <rect width="40" height="100" fill="#00ff88" rx="5"/>
+                                    <text x="20" y="55" text-anchor="middle" fill="#000" font-size="12">干净数字</text>
+                                    <text x="20" y="75" text-anchor="middle" fill="#000" font-size="11">OUTPUT</text>
+                                </g>
+                                <!-- 统计指标 -->
+                                <g transform="translate(300,300)">
+                                    <rect x="-250" y="0" width="500" height="80" fill="#111e38" stroke="#00d4ff" stroke-width="1" rx="8" opacity="0.9"/>
+                                    <text x="-200" y="30" fill="#aaa" font-size="12">输入噪声：<tspan fill="#ff6b6b" id="chipNoiseVal">-</tspan> dB</text>
+                                    <text x="-200" y="55" fill="#aaa" font-size="12">信噪比提升：<tspan fill="#00ff88" id="chipSNR">-</tspan> dB</text>
+                                    <text x="0" y="30" fill="#aaa" font-size="12">采样率：<tspan fill="#00d4ff" id="chipSR">-</tspan> kHz</text>
+                                    <text x="0" y="55" fill="#aaa" font-size="12">精度：<tspan fill="#00d4ff">12Bit</tspan></text>
+                                    <text x="200" y="30" fill="#aaa" font-size="12">处理延迟：<tspan fill="#ffd700" id="chipLat">-</tspan> μs</text>
+                                    <text x="200" y="55" fill="#aaa" font-size="12">通道数：<tspan fill="#00d4ff">8 CH</tspan></text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 波形对比 -->
+                <div class="dash-grid-2">
+                    <div class="dash-panel">
+                        <div class="panel-title">
+                            <span>🌡️ 原始信号（含噪声）- 进入芯片前</span>
+                            <span class="stat-before">SNR: <span id="snrBefore">-</span> dB</span>
+                        </div>
+                        <div id="rawSignalChart" class="chart-box" style="height:260px;"></div>
+                    </div>
+                    <div class="dash-panel">
+                        <div class="panel-title">
+                            <span>✅ 预处理后信号（干净）- 芯片输出</span>
+                            <span class="stat-after">SNR: <span id="snrAfter">-</span> dB</span>
+                        </div>
+                        <div id="cleanSignalChart" class="chart-box" style="height:260px;"></div>
+                    </div>
+                </div>
+
+                <!-- 信号处理指标 -->
+                <div class="kpi-row mt-20">
+                    <div class="kpi-card"><div class="kpi-icon">🌡️</div><div class="kpi-content"><div class="kpi-label">温度通道</div><div class="kpi-value">正常<span class="kpi-unit"></span></div><div class="kpi-trend up">THD: 0.3%</div></div></div>
+                    <div class="kpi-card"><div class="kpi-icon">💨</div><div class="kpi-content"><div class="kpi-label">压力通道</div><div class="kpi-value">正常<span class="kpi-unit"></span></div><div class="kpi-trend up">THD: 0.2%</div></div></div>
+                    <div class="kpi-card"><div class="kpi-icon">📳</div><div class="kpi-content"><div class="kpi-label">振动通道</div><div class="kpi-value">正常<span class="kpi-unit"></span></div><div class="kpi-trend up">THD: 0.5%</div></div></div>
+                    <div class="kpi-card"><div class="kpi-icon">⚡</div><div class="kpi-content"><div class="kpi-label">电流通道</div><div class="kpi-value warning">注意<span class="kpi-unit"></span></div><div class="kpi-trend up">THD: 1.8%</div></div></div>
+                </div>
+            </section>
+
+            <!-- ========== 边缘设备管理 ========== -->
+            <section class="page page-devices" id="page-devices">
+                <div class="page-header">
+                    <div>
+                        <h2>📦 边缘计算控制设备管理</h2>
+                        <p class="page-desc">Ⅱ类实用新型专利 · 现场物理硬件载体：对接现场设备，边缘预处理+本地算力</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-outline">⬇ 批量导入</button>
+                        <button class="btn btn-primary" onclick="addMockDevice()">＋ 新增设备</button>
+                    </div>
+                </div>
+
+                <!-- 设备状态概览 -->
+                <div class="device-stats-row">
+                    <div class="dev-stat-card online">
+                        <div class="dev-stat-num" id="statOnline">0</div>
+                        <div class="dev-stat-label">在线设备</div>
+                        <div class="dev-stat-bar"><div class="bar-inner" style="width:85%"></div></div>
+                    </div>
+                    <div class="dev-stat-card offline">
+                        <div class="dev-stat-num" id="statOffline">0</div>
+                        <div class="dev-stat-label">离线设备</div>
+                        <div class="dev-stat-bar"><div class="bar-inner" style="width:12%"></div></div>
+                    </div>
+                    <div class="dev-stat-card warning">
+                        <div class="dev-stat-num" id="statWarning">0</div>
+                        <div class="dev-stat-label">告警设备</div>
+                        <div class="dev-stat-bar"><div class="bar-inner" style="width:8%"></div></div>
+                    </div>
+                    <div class="dev-stat-card info">
+                        <div class="dev-stat-num" id="statTotal">0</div>
+                        <div class="dev-stat-label">设备总数</div>
+                        <div class="dev-stat-bar"><div class="bar-inner" style="width:100%"></div></div>
+                    </div>
+                </div>
+
+                <!-- 筛选栏 -->
+                <div class="filter-bar">
+                    <input type="text" class="search-input" placeholder="🔍 搜索设备名称/序列号/MAC..." id="deviceSearch">
+                    <select class="filter-select" id="filterStatus">
+                        <option value="">全部状态</option><option value="online">在线</option>
+                        <option value="offline">离线</option><option value="warning">告警</option>
+                    </select>
+                    <select class="filter-select" id="filterIndustry">
+                        <option value="">全部行业</option><option value="化工">化工</option>
+                        <option value="制造">智能制造</option><option value="电力">电力</option>
+                        <option value="农业">农业</option><option value="交通">交通</option>
+                    </select>
+                    <button class="btn btn-outline" onclick="renderDeviceList()">🔍 筛选</button>
+                </div>
+
+                <!-- 设备卡片 -->
+                <div class="device-grid" id="deviceGrid"></div>
+
+                <!-- 设备详情弹窗 -->
+                <div class="modal" id="deviceModal">
+                    <div class="modal-content modal-lg">
+                        <div class="modal-header">
+                            <span id="modalTitle">设备详情</span>
+                            <span class="modal-close" onclick="closeModal()">×</span>
+                        </div>
+                        <div class="modal-body" id="modalBody"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== 核心算法流程 ========== -->
+            <section class="page page-algorithm" id="page-algorithm">
+                <div class="page-header">
+                    <div>
+                        <h2>📐 核心算法流程图</h2>
+                        <p class="page-desc">Ⅰ类发明专利《一种跨平台人工智能行业应用自适应集成系统》· 算法输入输出与执行流程</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-outline">⬇ 导出流程图</button>
+                    </div>
+                </div>
+
+                <div class="algo-flow-container">
+                    <!-- 流程说明 -->
+                    <div class="algo-summary">
+                        <h3>📋 算法定位</h3>
+                        <p>当现场有五花八门的设备（摄像头、传感器、PLC、仪表）要把数据送到五花八门的AI应用（人脸识别、预测维护、质检、能耗优化）里去时，以前需要程序员针对每一对"设备+应用"手写代码。<strong>本算法就是把"手写代码"的过程自动化、配置化</strong>。</p>
+                    </div>
+
+                    <!-- 完整流程图 -->
+                    <div class="algo-flow-chart">
+                        <h3>🔄 核心算法流程总图</h3>
+                        <div id="algoFlowChart" style="height:720px;"></div>
+                    </div>
+
+                    <!-- 输入输出 -->
+                    <div class="algo-io-grid">
+                        <div class="io-card io-input">
+                            <h3>📥 算法输入</h3>
+                            <ul>
+                                <li><strong>设备标识</strong>：Device ID / MAC地址 / 序列号</li>
+                                <li><strong>物理接口</strong>：RS485 / RS232 / TCP / MQTT / Modbus / OPC-UA</li>
+                                <li><strong>原始数据样本</strong>：前N条报文 / 前N秒信号（字节流/模拟量）</li>
+                                <li><strong>目标AI需求</strong>：用户选择的AI应用类型 / 场景配置</li>
+                            </ul>
+                        </div>
+                        <div class="io-card io-middle">
+                            <h3>⚙️ 算法处理</h3>
+                            <ol>
+                                <li>数据结构特征分析（帧头帧尾/校验/分隔符）</li>
+                                <li>时序特征分析（采样频率/周期/突变）</li>
+                                <li>内容特征分析（数值范围/枚举值/编码）</li>
+                                <li>驱动库匹配（协议转换表查表）</li>
+                                <li>格式转码（方言→普通话）</li>
+                                <li>模型张量封装（输入标准化）</li>
+                            </ol>
+                        </div>
+                        <div class="io-card io-output">
+                            <h3>📤 算法输出</h3>
+                            <ul>
+                                <li><strong>标准JSON数据</strong>：统一格式的设备数据</li>
+                                <li><strong>标准张量</strong>：AI模型可直接推理的Tensor</li>
+                                <li><strong>集成配置文件</strong>：设备-算法绑定关系</li>
+                                <li><strong>边缘下发指令</strong>：盒子执行计划（MQTT）</li>
+                                <li><strong>运行状态流</strong>：心跳+指标监控</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== 行业方案库 ========== -->
+            <section class="page page-industry" id="page-industry">
+                <div class="page-header">
+                    <div>
+                        <h2>🏭 行业方案库</h2>
+                        <p class="page-desc">将四项专利成果打包为开箱即用的行业解决方案，一键部署到现场边缘设备</p>
+                    </div>
+                    <button class="btn btn-primary">＋ 新建方案</button>
+                </div>
+
+                <div class="industry-grid" id="industryGrid"></div>
+            </section>
+
+            <!-- ========== 运行日志 ========== -->
+            <section class="page page-logs" id="page-logs">
+                <div class="page-header">
+                    <div>
+                        <h2>📋 运行日志中心</h2>
+                        <p class="page-desc">平台、设备、算法、芯片全链路日志聚合与检索</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-outline">⬇ 导出日志</button>
+                        <button class="btn btn-primary" onclick="clearLogs()">🗑 清空日志</button>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <select class="filter-select" id="logLevel">
+                        <option value="">全部级别</option><option value="INFO">INFO</option>
+                        <option value="WARN">WARN</option><option value="ERROR">ERROR</option>
+                        <option value="DEBUG">DEBUG</option>
+                    </select>
+                    <select class="filter-select" id="logModule">
+                        <option value="">全部模块</option><option value="PLAT">平台</option>
+                        <option value="DEV">边缘设备</option><option value="ALG">自适应算法</option>
+                        <option value="CHIP">预处理芯片</option>
+                    </select>
+                    <input type="text" class="search-input" placeholder="搜索关键字..." id="logSearch">
+                    <button class="btn btn-primary" onclick="renderLogs()">🔍 查询</button>
+                </div>
+
+                <div class="log-center" id="logCenterBox"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/chip.js"></script>
+    <script src="js/devices.js"></script>
+    <script src="js/integration.js"></script>
+    <script src="js/industry.js"></script>
+    <script src="js/algorithm.js"></script>
+    <script src="js/logs.js"></script>
+</body>
+</html>

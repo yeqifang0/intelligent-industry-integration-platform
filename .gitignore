@@ -1,0 +1,7 @@
+# 临时文件
+.trae-html-share-packages/
+.DS_Store
+*.log
+node_modules/
+.vscode/
+.idea/
