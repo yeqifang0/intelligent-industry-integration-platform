@@ -1,13 +1,91 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<html lang="zh-CN"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能行业应用系统集成服务平台</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="js/auth.js"></script>
 </head>
 <body>
+    <!-- ============== 登录/锁屏 ============== -->
+    <div class="login-mask" id="loginMask">
+        <div class="login-bg">
+            <div class="login-circles">
+                <div class="lc c1"></div><div class="lc c2"></div><div class="lc c3"></div>
+            </div>
+            <div class="login-grid-pattern"></div>
+        </div>
+        <div class="login-box">
+            <div class="login-logo">
+                <svg viewBox="0 0 60 60" width="54" height="54">
+                    <defs><linearGradient id="lgLogo" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#0066ff"/>
+                    </linearGradient></defs>
+                    <polygon points="30,3 57,18 57,42 30,57 3,42 3,18" fill="url(#lgLogo)" opacity="0.95"/>
+                    <circle cx="30" cy="30" r="11" fill="#fff"/>
+                    <circle cx="30" cy="30" r="5" fill="url(#lgLogo)"/>
+                </svg>
+            </div>
+            <div class="login-title">智能行业应用系统集成服务平台</div>
+            <div class="login-subtitle">Intelligent Industry Application System Integration Platform</div>
+            <form class="login-form" id="loginForm" onsubmit="return false;">
+                <div class="login-field">
+                    <span class="login-ico">👤</span>
+                    <input type="text" id="lg_username" placeholder="登录名 (默认: admin / manager / ops / guest)" autocomplete="username">
+                </div>
+                <div class="login-field">
+                    <span class="login-ico">🔒</span>
+                    <input type="password" id="lg_password" placeholder="登录密码 (默认账号见提示)" autocomplete="current-password">
+                </div>
+                <div class="login-field captcha-row">
+                    <span class="login-ico">🔤</span>
+                    <input type="text" id="lg_captcha" placeholder="验证码" style="flex:1;">
+                    <div class="captcha-box" id="captchaBox" onclick="refreshCaptcha()" title="点击刷新">A3x9</div>
+                </div>
+                <div class="login-options">
+                    <label class="remember-row"><input type="checkbox" id="lg_remember" checked> 记住登录状态 (8小时)</label>
+                    <span class="forgot-link" onclick="alert('请联系超级管理员 [admin] 重置密码')">忘记密码?</span>
+                </div>
+                <div class="login-tip" id="loginTip" style="display:none;"></div>
+                <button class="login-btn" type="submit" id="loginBtn" onclick="doLogin()">
+                    <span id="loginBtnText">登 录</span>
+                </button>
+            </form>
+            <div class="login-accounts">
+                <div class="acc-title">🎯 默认演示账号 (密码见括号内)</div>
+                <div class="acc-grid">
+                    <div class="acc-card" onclick="fillAccount('admin','Admin@123')">
+                        <b>admin</b><span>超级管理员 · (Admin@123)</span>
+                    </div>
+                    <div class="acc-card" onclick="fillAccount('manager','Manager@123')">
+                        <b>manager</b><span>系统管理员 · (Manager@123)</span>
+                    </div>
+                    <div class="acc-card" onclick="fillAccount('ops','Ops@123')">
+                        <b>ops</b><span>运维人员 · (Ops@123)</span>
+                    </div>
+                    <div class="acc-card" onclick="fillAccount('guest','Guest@123')">
+                        <b>guest</b><span>访客 · (Guest@123)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="login-footer">
+                <span>© 2026 智能行业应用系统集成服务平台</span>
+                <span style="color:var(--primary)">软著登记号: 2026SRXXXXXX</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========= 权限不足遮罩 ======== -->
+    <div class="permission-denied" id="permDenied" style="display:none;">
+        <div class="pd-card">
+            <div class="pd-icon">🔒</div>
+            <div class="pd-title">访问被拒绝</div>
+            <div class="pd-desc" id="permDeniedMsg">您当前的角色无权访问此页面</div>
+            <button class="btn btn-primary" onclick="document.getElementById('permDenied').style.display='none';">返回首页</button>
+        </div>
+    </div>
+
     <!-- 顶部导航 -->
     <header class="top-header">
         <div class="header-left">
@@ -15,13 +93,13 @@
                 <svg viewBox="0 0 40 40" width="40" height="40">
                     <defs>
                         <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#0066ff;stop-opacity:1" />
+                            <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1"></stop>
+                            <stop offset="100%" style="stop-color:#0066ff;stop-opacity:1"></stop>
                         </linearGradient>
                     </defs>
-                    <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" fill="url(#logoGrad)" stroke="#00d4ff" stroke-width="1"/>
-                    <circle cx="20" cy="20" r="8" fill="#ffffff" opacity="0.9"/>
-                    <circle cx="20" cy="20" r="4" fill="url(#logoGrad)"/>
+                    <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" fill="url(#logoGrad)" stroke="#00d4ff" stroke-width="1"></polygon>
+                    <circle cx="20" cy="20" r="8" fill="#ffffff" opacity="0.9"></circle>
+                    <circle cx="20" cy="20" r="4" fill="url(#logoGrad)"></circle>
                 </svg>
             </div>
             <div class="header-title">
@@ -35,9 +113,27 @@
                 <span>系统运行正常</span>
             </div>
             <div class="header-time" id="currentTime">--:--:--</div>
-            <div class="user-info">
-                <div class="avatar">A</div>
-                <span>管理员</span>
+            <div class="role-pill-wrap" id="userRoleWrap" style="display:none;">
+                <span class="role-pill" id="userRolePill" style="padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600;">角色</span>
+            </div>
+            <div class="user-info" id="userInfo" style="cursor:pointer;" onclick="toggleUserMenu(event)">
+                <div class="avatar" id="userAvatar">?</div>
+                <span id="userNickname">未登录</span>
+                <span style="font-size:10px;color:var(--text-sub);margin-left:3px;">▼</span>
+            </div>
+            <div class="user-dropdown" id="userDropdown" style="display:none;">
+                <div class="ud-header">
+                    <div class="ud-avatar" id="udAvatar">?</div>
+                    <div>
+                        <div class="ud-nickname" id="udNickname">未登录</div>
+                        <div class="ud-username" id="udUsername">@-</div>
+                    </div>
+                </div>
+                <div class="ud-row" onclick="alert('个人中心开发中...')"><span>👤</span>个人中心</div>
+                <div class="ud-row" onclick="alert('密码修改：请联系管理员 或 进入用户管理→重置密码')"><span>🔐</span>修改密码</div>
+                <div class="ud-row" data-perm="users" data-perm-page="users"><span>👥</span>用户与权限管理</div>
+                <div class="ud-divider"></div>
+                <div class="ud-row" style="color:var(--danger);" onclick="doLogout()"><span>🚪</span>退出登录</div>
             </div>
         </div>
     </header>
@@ -80,6 +176,10 @@
                     <span class="menu-icon">📋</span>
                     <span class="menu-text">运行日志</span>
                 </div>
+                <div class="menu-item" data-page="users" data-perm-page="users" style="display:none;" id="menuUsers">
+                    <span class="menu-icon">👥</span>
+                    <span class="menu-text">用户与权限管理</span>
+                </div>
             </nav>
             <div class="sidebar-footer">
                 <div class="version-info">
@@ -107,26 +207,26 @@
                     <div class="patent-card type-I">
                         <div class="patent-level">Ⅰ类发明专利</div>
                         <div class="patent-name">跨平台人工智能行业应用<br>自适应集成系统</div>
-                        <div class="patent-role">总指挥大脑 · 万能转换插头</div>
-                        <div class="patent-stat"><span class="stat-num" id="adaptionCount">0</span><span>次适配完成</span></div>
+                        
+                        <div class="patent-stat"><span class="stat-num" id="adaptionCount">8,642</span><span>次适配完成</span></div>
                     </div>
                     <div class="patent-card type-I">
                         <div class="patent-level">Ⅰ类布图设计</div>
                         <div class="patent-name">人工智能模拟信号<br>预处理芯片</div>
-                        <div class="patent-role">末梢神经 · 第一道过滤器</div>
-                        <div class="patent-stat"><span class="stat-num" id="chipProcessCount">0</span><span>万条数据过滤</span></div>
+                        
+                        <div class="patent-stat"><span class="stat-num" id="chipProcessCount">1,258</span><span>万条数据过滤</span></div>
                     </div>
                     <div class="patent-card type-II">
                         <div class="patent-level">Ⅱ类实用新型</div>
                         <div class="patent-name">边缘计算<br>控制设备</div>
-                        <div class="patent-role">强壮躯干 · 现场驻场专家</div>
-                        <div class="patent-stat"><span class="stat-num" id="deviceOnlineCount">0</span><span>台在线设备</span></div>
+                        
+                        <div class="patent-stat"><span class="stat-num" id="deviceOnlineCount">342</span><span>台在线设备</span></div>
                     </div>
                     <div class="patent-card type-soft">
                         <div class="patent-level">Ⅱ类软件著作权</div>
                         <div class="patent-name">智能行业应用系统<br>集成服务平台</div>
-                        <div class="patent-role">可视化脸面 · 调度大厅</div>
-                        <div class="patent-stat"><span class="stat-num" id="apiCallCount">0</span><span>次API调用</span></div>
+                        
+                        <div class="patent-stat"><span class="stat-num" id="apiCallCount">248,391</span><span>次API调用</span></div>
                     </div>
                 </div>
 
@@ -136,7 +236,7 @@
                         <div class="kpi-icon">🖥️</div>
                         <div class="kpi-content">
                             <div class="kpi-label">接入设备总数</div>
-                            <div class="kpi-value"><span id="totalDevices">0</span><span class="kpi-unit">台</span></div>
+                            <div class="kpi-value"><span id="totalDevices">412</span><span class="kpi-unit">台</span></div>
                             <div class="kpi-trend up">↑ 12.5% 较昨日</div>
                         </div>
                     </div>
@@ -144,7 +244,7 @@
                         <div class="kpi-icon">🤖</div>
                         <div class="kpi-content">
                             <div class="kpi-label">已部署AI模型</div>
-                            <div class="kpi-value"><span id="totalModels">0</span><span class="kpi-unit">个</span></div>
+                            <div class="kpi-value"><span id="totalModels">28</span><span class="kpi-unit">个</span></div>
                             <div class="kpi-trend up">↑ 3 个新模型</div>
                         </div>
                     </div>
@@ -152,7 +252,7 @@
                         <div class="kpi-icon">⚠️</div>
                         <div class="kpi-content">
                             <div class="kpi-label">今日预警次数</div>
-                            <div class="kpi-value warning"><span id="alertCount">0</span><span class="kpi-unit">次</span></div>
+                            <div class="kpi-value warning"><span id="alertCount">17</span><span class="kpi-unit">次</span></div>
                             <div class="kpi-trend down">↓ 8.2% 较昨日</div>
                         </div>
                     </div>
@@ -160,7 +260,7 @@
                         <div class="kpi-icon">🏭</div>
                         <div class="kpi-content">
                             <div class="kpi-label">覆盖行业场景</div>
-                            <div class="kpi-value"><span id="totalIndustries">0</span><span class="kpi-unit">个</span></div>
+                            <div class="kpi-value"><span id="totalIndustries">6</span><span class="kpi-unit">个</span></div>
                             <div class="kpi-trend up">↑ 新增2行业</div>
                         </div>
                     </div>
@@ -176,7 +276,7 @@
                                 <span class="tab">按省份</span>
                             </div>
                         </div>
-                        <div id="mapChart" class="chart-box" style="height:320px;"></div>
+                        <div id="mapChart" class="chart-box" style="height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297446"><div style="position: relative; width: 329px; height: 320px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="640" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
                     </div>
                     <div class="dash-panel">
                         <div class="panel-title">
@@ -187,13 +287,13 @@
                                 <span class="tab">今日</span>
                             </div>
                         </div>
-                        <div id="realtimeChart" class="chart-box" style="height:320px;"></div>
+                        <div id="realtimeChart" class="chart-box" style="height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297447"><div style="position: relative; width: 329px; height: 320px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="640" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
                     </div>
                     <div class="dash-panel">
                         <div class="panel-title">
                             <span>🏭 行业场景占比</span>
                         </div>
-                        <div id="industryChart" class="chart-box" style="height:320px;"></div>
+                        <div id="industryChart" class="chart-box" style="height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297448"><div style="position: relative; width: 329px; height: 320px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="640" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
                     </div>
                 </div>
 
@@ -204,13 +304,13 @@
                             <span>🔗 芯片预处理效果对比（原始 vs 滤波后）</span>
                             <span class="chip-tag">Ⅰ类 · 预处理芯片</span>
                         </div>
-                        <div id="signalChart" class="chart-box" style="height:280px;"></div>
+                        <div id="signalChart" class="chart-box" style="height: 280px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297449"><div style="position: relative; width: 329px; height: 280px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="560" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 280px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
                     </div>
                     <div class="dash-panel">
                         <div class="panel-title">
                             <span>⚡ 实时系统日志</span>
                         </div>
-                        <div class="log-box" id="dashLogBox"></div>
+                        <div class="log-box" id="dashLogBox"><div class="log-line INFO"><span class="t">13:51:37</span><span class="l">[INFO]</span><span class="m">[DEV] 接入新设备 海康DS-2CD3T 端口:554</span></div><div class="log-line INFO"><span class="t">13:51:37</span><span class="l">[INFO]</span><span class="m">[PLAT] 自适应集成算法 新增协议匹配 MQTT→Json 成功</span></div><div class="log-line WARN"><span class="t">13:51:37</span><span class="l">[WARN]</span><span class="m">[PLAT] 预处理芯片 8号通道SNR提升至48.2dB</span></div><div class="log-line INFO"><span class="t">13:51:37</span><span class="l">[INFO]</span><span class="m">[CHIP] 化工园区1号盒子 CPU使用率 43%，温度 51℃</span></div><div class="log-line INFO"><span class="t">13:51:37</span><span class="l">[INFO]</span><span class="m">[DEV] AI模型 异常检测v2.1 推理完成，耗时 42ms</span></div><div class="log-line SUCCESS"><span class="t">13:51:37</span><span class="l">[SUCCESS]</span><span class="m">[PLAT] 自适应集成算法 新增协议匹配 MQTT→Json 成功</span></div><div class="log-line INFO"><span class="t">13:51:37</span><span class="l">[INFO]</span><span class="m">[CHIP] 预处理芯片 8号通道SNR提升至48.2dB</span></div><div class="log-line WARN"><span class="t">13:51:37</span><span class="l">[WARN]</span><span class="m">[DEV] 化工园区1号盒子 CPU使用率 43%，温度 51℃</span></div><div class="log-line DEBUG"><span class="t">13:51:37</span><span class="l">[DEBUG]</span><span class="m">[ALG] 接入新设备 海康DS-2CD3T 端口:554</span></div><div class="log-line INFO"><span class="t">13:51:37</span><span class="l">[INFO]</span><span class="m">[CHIP] 接入新设备 海康DS-2CD3T 端口:554</span></div><div class="log-line DEBUG"><span class="t">13:51:37</span><span class="l">[DEBUG]</span><span class="m">[CHIP] 接入新设备 海康DS-2CD3T 端口:554</span></div><div class="log-line INFO"><span class="t">13:51:37</span><span class="l">[INFO]</span><span class="m">[PLAT] 预处理芯片 8号通道SNR提升至48.2dB</span></div><div class="log-line INFO"><span class="t">13:51:41</span><span class="l">[INFO]</span><span class="m">[DEV] [专利2芯片] 完成 964 条数据预处理，SNR提升 24.1dB</span></div><div class="log-line SUCCESS"><span class="t">13:51:45</span><span class="l">[SUCCESS]</span><span class="m">[DEV] AI模型推理执行: 烟火识别，置信度 92.5%</span></div><div class="log-line SUCCESS"><span class="t">13:51:49</span><span class="l">[SUCCESS]</span><span class="m">[DEV] [专利2芯片] 完成 304 条数据预处理，SNR提升 29.9dB</span></div><div class="log-line WARN"><span class="t">13:51:53</span><span class="l">[WARN]</span><span class="m">[PLAT] [专利2芯片] 完成 626 条数据预处理，SNR提升 29.4dB</span></div><div class="log-line INFO"><span class="t">13:51:57</span><span class="l">[INFO]</span><span class="m">[CHIP] AI模型推理执行: 异常振动，置信度 98.1%</span></div><div class="log-line INFO"><span class="t">13:52:01</span><span class="l">[INFO]</span><span class="m">[PLAT] [专利2芯片] 完成 713 条数据预处理，SNR提升 29.3dB</span></div><div class="log-line INFO"><span class="t">13:52:05</span><span class="l">[INFO]</span><span class="m">[ALG] 盒子 EDGE-85 心跳包已接收，信号强度 92%</span></div><div class="log-line INFO"><span class="t">13:52:09</span><span class="l">[INFO]</span><span class="m">[CHIP] [专利1算法] 完成一次协议自动匹配，类型: OPC-UA</span></div><div class="log-line WARN"><span class="t">13:52:13</span><span class="l">[WARN]</span><span class="m">[CHIP] 盒子 EDGE-67 心跳包已接收，信号强度 86%</span></div><div class="log-line INFO"><span class="t">13:52:17</span><span class="l">[INFO]</span><span class="m">[DEV] [专利2芯片] 完成 726 条数据预处理，SNR提升 20.5dB</span></div><div class="log-line SUCCESS"><span class="t">13:52:21</span><span class="l">[SUCCESS]</span><span class="m">[PLAT] 盒子 EDGE-24 心跳包已接收，信号强度 83%</span></div><div class="log-line INFO"><span class="t">13:52:25</span><span class="l">[INFO]</span><span class="m">[CHIP] 平台API调用完成 编号:57878 耗时:89ms</span></div><div class="log-line INFO"><span class="t">13:52:29</span><span class="l">[INFO]</span><span class="m">[CHIP] 盒子 EDGE-86 心跳包已接收，信号强度 97%</span></div><div class="log-line INFO"><span class="t">13:52:33</span><span class="l">[INFO]</span><span class="m">[PLAT] [专利1算法] 完成一次协议自动匹配，类型: MQTT</span></div><div class="log-line INFO"><span class="t">13:52:37</span><span class="l">[INFO]</span><span class="m">[PLAT] [专利2芯片] 完成 825 条数据预处理，SNR提升 30.8dB</span></div><div class="log-line INFO"><span class="t">13:52:41</span><span class="l">[INFO]</span><span class="m">[DEV] AI模型推理执行: 异常振动，置信度 90.1%</span></div><div class="log-line SUCCESS"><span class="t">13:52:45</span><span class="l">[SUCCESS]</span><span class="m">[ALG] 平台API调用完成 编号:65837 耗时:77ms</span></div><div class="log-line WARN"><span class="t">13:52:49</span><span class="l">[WARN]</span><span class="m">[DEV] 平台API调用完成 编号:42334 耗时:45ms</span></div><div class="log-line INFO"><span class="t">13:52:53</span><span class="l">[INFO]</span><span class="m">[CHIP] 设备告警已恢复: 网络波动</span></div><div class="log-line SUCCESS"><span class="t">13:52:57</span><span class="l">[SUCCESS]</span><span class="m">[ALG] [专利1算法] 完成一次协议自动匹配，类型: RS485</span></div><div class="log-line INFO"><span class="t">13:53:01</span><span class="l">[INFO]</span><span class="m">[CHIP] 平台API调用完成 编号:89882 耗时:32ms</span></div><div class="log-line INFO"><span class="t">13:53:05</span><span class="l">[INFO]</span><span class="m">[ALG] [专利2芯片] 完成 780 条数据预处理，SNR提升 34.0dB</span></div><div class="log-line SUCCESS"><span class="t">13:53:09</span><span class="l">[SUCCESS]</span><span class="m">[PLAT] 盒子 EDGE-17 心跳包已接收，信号强度 74%</span></div><div class="log-line INFO"><span class="t">13:53:13</span><span class="l">[INFO]</span><span class="m">[DEV] [专利1算法] 完成一次协议自动匹配，类型: Modbus</span></div><div class="log-line INFO"><span class="t">13:53:17</span><span class="l">[INFO]</span><span class="m">[ALG] [专利2芯片] 完成 767 条数据预处理，SNR提升 24.4dB</span></div><div class="log-line INFO"><span class="t">13:53:21</span><span class="l">[INFO]</span><span class="m">[PLAT] 平台API调用完成 编号:57903 耗时:86ms</span></div><div class="log-line WARN"><span class="t">13:53:25</span><span class="l">[WARN]</span><span class="m">[PLAT] 盒子 EDGE-69 心跳包已接收，信号强度 68%</span></div><div class="log-line SUCCESS"><span class="t">13:53:29</span><span class="l">[SUCCESS]</span><span class="m">[PLAT] 平台API调用完成 编号:80418 耗时:16ms</span></div><div class="log-line INFO"><span class="t">13:53:33</span><span class="l">[INFO]</span><span class="m">[PLAT] AI模型推理执行: 烟火识别，置信度 85.1%</span></div><div class="log-line WARN"><span class="t">13:53:37</span><span class="l">[WARN]</span><span class="m">[PLAT] [专利1算法] 完成一次协议自动匹配，类型: Modbus</span></div><div class="log-line WARN"><span class="t">13:53:41</span><span class="l">[WARN]</span><span class="m">[ALG] 设备告警已恢复: 电流过载</span></div><div class="log-line SUCCESS"><span class="t">13:53:45</span><span class="l">[SUCCESS]</span><span class="m">[PLAT] 设备告警已恢复: 网络波动</span></div><div class="log-line INFO"><span class="t">13:53:49</span><span class="l">[INFO]</span><span class="m">[ALG] [专利2芯片] 完成 250 条数据预处理，SNR提升 33.2dB</span></div></div>
                     </div>
                 </div>
             </section>
@@ -231,7 +331,57 @@
                     <!-- 设备端 -->
                     <div class="panel-zone">
                         <div class="zone-title">📡 现场设备（方言输入）</div>
-                        <div class="device-list" id="deviceSourceList"></div>
+                        <div class="device-list" id="deviceSourceList">
+        <div class="device-card " onclick="selectDev('D1')">
+            <div class="name"><span class="icon">📹</span>海康摄像头 DS-2CD3T</div>
+            <div class="proto">协议 <span class="dev-proto-tag">RTSP/ONVIF</span></div>
+        </div>
+    
+        <div class="device-card " onclick="selectDev('D2')">
+            <div class="name"><span class="icon">🌡️</span>PT100温度传感阵列</div>
+            <div class="proto">协议 <span class="dev-proto-tag">Modbus RTU / RS485</span></div>
+        </div>
+    
+        <div class="device-card " onclick="selectDev('D3')">
+            <div class="name"><span class="icon">💨</span>压力变送器 EJA530A</div>
+            <div class="proto">协议 <span class="dev-proto-tag">4-20mA / HART</span></div>
+        </div>
+    
+        <div class="device-card " onclick="selectDev('D4')">
+            <div class="name"><span class="icon">🤖</span>发那科机械臂 R-2000iC</div>
+            <div class="proto">协议 <span class="dev-proto-tag">TCP 私有协议</span></div>
+        </div>
+    
+        <div class="device-card " onclick="selectDev('D5')">
+            <div class="name"><span class="icon">📳</span>三轴振动传感器</div>
+            <div class="proto">协议 <span class="dev-proto-tag">IEPE / 0-5V</span></div>
+        </div>
+    
+        <div class="device-card " onclick="selectDev('D6')">
+            <div class="name"><span class="icon">⚡</span>电流互感器 + 电能表</div>
+            <div class="proto">协议 <span class="dev-proto-tag">Modbus TCP / IEC61850</span></div>
+        </div>
+    
+        <div class="device-card " onclick="selectDev('D7')">
+            <div class="name"><span class="icon">🧪</span>PH/ORP在线分析仪</div>
+            <div class="proto">协议 <span class="dev-proto-tag">RS232 私有格式</span></div>
+        </div>
+    
+        <div class="device-card " onclick="selectDev('D8')">
+            <div class="name"><span class="icon">📷</span>基恩士视觉CV-X系列</div>
+            <div class="proto">协议 <span class="dev-proto-tag">EtherNet/IP 工业协议</span></div>
+        </div>
+    
+        <div class="device-card " onclick="selectDev('D9')">
+            <div class="name"><span class="icon">🏭</span>西门子PLC S7-1200</div>
+            <div class="proto">协议 <span class="dev-proto-tag">OPC-UA / S7Comm</span></div>
+        </div>
+    
+        <div class="device-card " onclick="selectDev('D10')">
+            <div class="name"><span class="icon">🌫️</span>VOC气体探测器</div>
+            <div class="proto">协议 <span class="dev-proto-tag">Modbus RTU (自定义帧)</span></div>
+        </div>
+    </div>
                     </div>
 
                     <!-- 中间算法画布 -->
@@ -277,7 +427,47 @@
                     <!-- AI应用端 -->
                     <div class="panel-zone">
                         <div class="zone-title">🎯 AI应用（普通话输出）</div>
-                        <div class="ai-list" id="aiTargetList"></div>
+                        <div class="ai-list" id="aiTargetList">
+        <div class="ai-card " onclick="selectAI('A1')">
+            <div class="name"><span class="icon">🔥</span>烟火识别算法</div>
+            <div class="type">计算机视觉 · 目标检测</div>
+        </div>
+    
+        <div class="ai-card " onclick="selectAI('A2')">
+            <div class="name"><span class="icon">👤</span>人脸识别与布控</div>
+            <div class="type">计算机视觉 · 识别</div>
+        </div>
+    
+        <div class="ai-card " onclick="selectAI('A3')">
+            <div class="name"><span class="icon">⚠️</span>设备异常振动检测</div>
+            <div class="type">时序信号 · 异常检测</div>
+        </div>
+    
+        <div class="ai-card " onclick="selectAI('A4')">
+            <div class="name"><span class="icon">📈</span>设备寿命预测维护</div>
+            <div class="type">时序 · 预测模型</div>
+        </div>
+    
+        <div class="ai-card " onclick="selectAI('A5')">
+            <div class="name"><span class="icon">🔍</span>工业视觉缺陷检测</div>
+            <div class="type">计算机视觉 · 分割</div>
+        </div>
+    
+        <div class="ai-card " onclick="selectAI('A6')">
+            <div class="name"><span class="icon">💧</span>能耗分析与优化</div>
+            <div class="type">多变量 · 回归模型</div>
+        </div>
+    
+        <div class="ai-card " onclick="selectAI('A7')">
+            <div class="name"><span class="icon">☠️</span>危化品泄漏预警</div>
+            <div class="type">多维信号 · 阈值+AI</div>
+        </div>
+    
+        <div class="ai-card " onclick="selectAI('A8')">
+            <div class="name"><span class="icon">🧲</span>焊缝质量智能评估</div>
+            <div class="type">视觉+电流特征融合</div>
+        </div>
+    </div>
                     </div>
                 </div>
 
@@ -285,7 +475,7 @@
                 <div class="dash-panel mt-20">
                     <div class="panel-title">
                         <span>✅ 已完成适配的 设备→AI 组合清单</span>
-                        <span class="sub-count">共 <span id="integrationCount">0</span> 条</span>
+                        <span class="sub-count">共 <span id="integrationCount">6</span> 条</span>
                     </div>
                     <table class="data-table">
                         <thead>
@@ -293,7 +483,67 @@
                                 <th>序号</th><th>现场设备</th><th>协议类型</th><th>接入AI算法</th><th>转换状态</th><th>最近心跳</th><th>操作</th>
                             </tr>
                         </thead>
-                        <tbody id="integrationTableBody"></tbody>
+                        <tbody id="integrationTableBody">
+            <tr>
+                <td>1</td>
+                <td>📹 海康摄像头 DS-2CD3T</td>
+                <td><span class="dev-proto-tag">RTSP</span></td>
+                <td>🔥 烟火识别算法</td>
+                <td><span class="status-pill success">● 运行中</span></td>
+                <td style="font-size:12px;color:var(--text-sub);font-family:Consolas,monospace;">10秒前</td>
+                <td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px;">详情</button></td>
+            </tr>
+        
+            <tr>
+                <td>2</td>
+                <td>📹 海康摄像头 DS-2CD3T</td>
+                <td><span class="dev-proto-tag">RTSP</span></td>
+                <td>👤 人脸识别与布控</td>
+                <td><span class="status-pill success">● 运行中</span></td>
+                <td style="font-size:12px;color:var(--text-sub);font-family:Consolas,monospace;">23秒前</td>
+                <td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px;">详情</button></td>
+            </tr>
+        
+            <tr>
+                <td>3</td>
+                <td>🌡️ PT100温度传感阵列</td>
+                <td><span class="dev-proto-tag">Modbus RTU </span></td>
+                <td>📈 设备寿命预测维护</td>
+                <td><span class="status-pill success">● 运行中</span></td>
+                <td style="font-size:12px;color:var(--text-sub);font-family:Consolas,monospace;">45秒前</td>
+                <td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px;">详情</button></td>
+            </tr>
+        
+            <tr>
+                <td>4</td>
+                <td>📳 三轴振动传感器</td>
+                <td><span class="dev-proto-tag">IEPE </span></td>
+                <td>⚠️ 设备异常振动检测</td>
+                <td><span class="status-pill success">● 运行中</span></td>
+                <td style="font-size:12px;color:var(--text-sub);font-family:Consolas,monospace;">1分钟前</td>
+                <td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px;">详情</button></td>
+            </tr>
+        
+            <tr>
+                <td>5</td>
+                <td>⚡ 电流互感器 + 电能表</td>
+                <td><span class="dev-proto-tag">Modbus TCP </span></td>
+                <td>💧 能耗分析与优化</td>
+                <td><span class="status-pill processing">● 下发中</span></td>
+                <td style="font-size:12px;color:var(--text-sub);font-family:Consolas,monospace;">正在下发</td>
+                <td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px;">详情</button></td>
+            </tr>
+        
+            <tr>
+                <td>6</td>
+                <td>📷 基恩士视觉CV-X系列</td>
+                <td><span class="dev-proto-tag">EtherNet</span></td>
+                <td>🔍 工业视觉缺陷检测</td>
+                <td><span class="status-pill success">● 运行中</span></td>
+                <td style="font-size:12px;color:var(--text-sub);font-family:Consolas,monospace;">3分钟前</td>
+                <td><button class="btn btn-outline" style="padding:3px 10px;font-size:11px;">详情</button></td>
+            </tr>
+        </tbody>
                     </table>
                 </div>
             </section>
@@ -306,8 +556,8 @@
                         <p class="page-desc">Ⅰ类集成电路布图设计 · 边缘硬件最底层电路支撑：物理世界→干净数字信号的第一道关口</p>
                     </div>
                     <div class="header-actions">
-                        <label class="switch-label"><input type="checkbox" id="noiseToggle" checked> 注入噪声模拟</label>
-                        <label class="switch-label"><input type="checkbox" id="filterToggle" checked> 启用芯片滤波</label>
+                        <label class="switch-label"><input type="checkbox" id="noiseToggle" checked=""> 注入噪声模拟</label>
+                        <label class="switch-label"><input type="checkbox" id="filterToggle" checked=""> 启用芯片滤波</label>
                     </div>
                 </div>
 
@@ -319,64 +569,64 @@
                             <svg viewBox="0 0 600 400" width="100%" height="100%">
                                 <!-- 输入接口 -->
                                 <g transform="translate(20,150)">
-                                    <rect width="40" height="100" fill="#ff6b6b" rx="5"/>
+                                    <rect width="40" height="100" fill="#ff6b6b" rx="5"></rect>
                                     <text x="20" y="55" text-anchor="middle" fill="#fff" font-size="12">模拟信号</text>
                                     <text x="20" y="75" text-anchor="middle" fill="#fff" font-size="11">INPUT</text>
                                 </g>
                                 <!-- 连线 -->
-                                <line x1="60" y1="170" x2="100" y2="170" stroke="#00d4ff" stroke-width="3" marker-end="url(#arrow)"/>
-                                <line x1="180" y1="170" x2="220" y2="170" stroke="#00d4ff" stroke-width="3"/>
-                                <line x1="300" y1="170" x2="340" y2="170" stroke="#00d4ff" stroke-width="3"/>
-                                <line x1="420" y1="170" x2="460" y2="170" stroke="#00d4ff" stroke-width="3"/>
+                                <line x1="60" y1="170" x2="100" y2="170" stroke="#00d4ff" stroke-width="3" marker-end="url(#arrow)"></line>
+                                <line x1="180" y1="170" x2="220" y2="170" stroke="#00d4ff" stroke-width="3"></line>
+                                <line x1="300" y1="170" x2="340" y2="170" stroke="#00d4ff" stroke-width="3"></line>
+                                <line x1="420" y1="170" x2="460" y2="170" stroke="#00d4ff" stroke-width="3"></line>
                                 <defs>
                                     <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                                        <path d="M0,0 L0,6 L9,3 z" fill="#00d4ff"/>
+                                        <path d="M0,0 L0,6 L9,3 z" fill="#00d4ff"></path>
                                     </marker>
                                 </defs>
                                 <!-- 模块1：放大 -->
                                 <g transform="translate(100,140)">
-                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modAmp"/>
+                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modAmp"></rect>
                                     <text x="40" y="25" text-anchor="middle" fill="#fff" font-size="13">信号放大</text>
                                     <text x="40" y="45" text-anchor="middle" fill="#00d4ff" font-size="10">Amplifier</text>
                                 </g>
                                 <!-- 模块2：滤波 -->
                                 <g transform="translate(220,140)">
-                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modFilter"/>
+                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modFilter"></rect>
                                     <text x="40" y="25" text-anchor="middle" fill="#fff" font-size="13">低通滤波</text>
                                     <text x="40" y="45" text-anchor="middle" fill="#00d4ff" font-size="10">Low-Pass</text>
                                 </g>
                                 <!-- 模块3：采样 -->
                                 <g transform="translate(340,140)">
-                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modADC"/>
+                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modADC"></rect>
                                     <text x="40" y="25" text-anchor="middle" fill="#fff" font-size="13">AD采样</text>
                                     <text x="40" y="45" text-anchor="middle" fill="#00d4ff" font-size="10">ADC 12Bit</text>
                                 </g>
                                 <!-- 模块4：数字滤波 -->
                                 <g transform="translate(460,140)">
-                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modDSP"/>
+                                    <rect width="80" height="60" fill="#2d4a7a" stroke="#00d4ff" stroke-width="2" rx="5" class="chip-module" id="modDSP"></rect>
                                     <text x="40" y="25" text-anchor="middle" fill="#fff" font-size="13">数字滤波</text>
                                     <text x="40" y="45" text-anchor="middle" fill="#00d4ff" font-size="10">DSP Core</text>
                                 </g>
                                 <!-- 输出 -->
-                                <line x1="540" y1="170" x2="580" y2="170" stroke="#00ff88" stroke-width="3" marker-end="url(#arrow2)"/>
+                                <line x1="540" y1="170" x2="580" y2="170" stroke="#00ff88" stroke-width="3" marker-end="url(#arrow2)"></line>
                                 <defs>
                                     <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                                        <path d="M0,0 L0,6 L9,3 z" fill="#00ff88"/>
+                                        <path d="M0,0 L0,6 L9,3 z" fill="#00ff88"></path>
                                     </marker>
                                 </defs>
                                 <g transform="translate(550,150)">
-                                    <rect width="40" height="100" fill="#00ff88" rx="5"/>
+                                    <rect width="40" height="100" fill="#00ff88" rx="5"></rect>
                                     <text x="20" y="55" text-anchor="middle" fill="#000" font-size="12">干净数字</text>
                                     <text x="20" y="75" text-anchor="middle" fill="#000" font-size="11">OUTPUT</text>
                                 </g>
                                 <!-- 统计指标 -->
                                 <g transform="translate(300,300)">
-                                    <rect x="-250" y="0" width="500" height="80" fill="#111e38" stroke="#00d4ff" stroke-width="1" rx="8" opacity="0.9"/>
-                                    <text x="-200" y="30" fill="#aaa" font-size="12">输入噪声：<tspan fill="#ff6b6b" id="chipNoiseVal">-</tspan> dB</text>
-                                    <text x="-200" y="55" fill="#aaa" font-size="12">信噪比提升：<tspan fill="#00ff88" id="chipSNR">-</tspan> dB</text>
-                                    <text x="0" y="30" fill="#aaa" font-size="12">采样率：<tspan fill="#00d4ff" id="chipSR">-</tspan> kHz</text>
+                                    <rect x="-250" y="0" width="500" height="80" fill="#111e38" stroke="#00d4ff" stroke-width="1" rx="8" opacity="0.9"></rect>
+                                    <text x="-200" y="30" fill="#aaa" font-size="12">输入噪声：<tspan fill="#ff6b6b" id="chipNoiseVal">41.4</tspan> dB</text>
+                                    <text x="-200" y="55" fill="#aaa" font-size="12">信噪比提升：<tspan fill="#00ff88" id="chipSNR">NaN</tspan> dB</text>
+                                    <text x="0" y="30" fill="#aaa" font-size="12">采样率：<tspan fill="#00d4ff" id="chipSR">439</tspan> kHz</text>
                                     <text x="0" y="55" fill="#aaa" font-size="12">精度：<tspan fill="#00d4ff">12Bit</tspan></text>
-                                    <text x="200" y="30" fill="#aaa" font-size="12">处理延迟：<tspan fill="#ffd700" id="chipLat">-</tspan> μs</text>
+                                    <text x="200" y="30" fill="#aaa" font-size="12">处理延迟：<tspan fill="#ffd700" id="chipLat">16</tspan> μs</text>
                                     <text x="200" y="55" fill="#aaa" font-size="12">通道数：<tspan fill="#00d4ff">8 CH</tspan></text>
                                 </g>
                             </svg>
@@ -389,16 +639,16 @@
                     <div class="dash-panel">
                         <div class="panel-title">
                             <span>🌡️ 原始信号（含噪声）- 进入芯片前</span>
-                            <span class="stat-before">SNR: <span id="snrBefore">-</span> dB</span>
+                            <span class="stat-before">SNR: <span id="snrBefore">8.0</span> dB</span>
                         </div>
-                        <div id="rawSignalChart" class="chart-box" style="height:260px;"></div>
+                        <div id="rawSignalChart" class="chart-box" style="height: 260px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297435"><div style="position: relative; width: 329px; height: 260px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="520" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 260px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
                     </div>
                     <div class="dash-panel">
                         <div class="panel-title">
                             <span>✅ 预处理后信号（干净）- 芯片输出</span>
-                            <span class="stat-after">SNR: <span id="snrAfter">-</span> dB</span>
+                            <span class="stat-after">SNR: <span id="snrAfter">NaN</span> dB</span>
                         </div>
-                        <div id="cleanSignalChart" class="chart-box" style="height:260px;"></div>
+                        <div id="cleanSignalChart" class="chart-box" style="height: 260px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297436"><div style="position: relative; width: 329px; height: 260px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="520" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 260px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
                     </div>
                 </div>
 
@@ -427,22 +677,22 @@
                 <!-- 设备状态概览 -->
                 <div class="device-stats-row">
                     <div class="dev-stat-card online">
-                        <div class="dev-stat-num" id="statOnline">0</div>
+                        <div class="dev-stat-num" id="statOnline">9</div>
                         <div class="dev-stat-label">在线设备</div>
                         <div class="dev-stat-bar"><div class="bar-inner" style="width:85%"></div></div>
                     </div>
                     <div class="dev-stat-card offline">
-                        <div class="dev-stat-num" id="statOffline">0</div>
+                        <div class="dev-stat-num" id="statOffline">1</div>
                         <div class="dev-stat-label">离线设备</div>
                         <div class="dev-stat-bar"><div class="bar-inner" style="width:12%"></div></div>
                     </div>
                     <div class="dev-stat-card warning">
-                        <div class="dev-stat-num" id="statWarning">0</div>
+                        <div class="dev-stat-num" id="statWarning">2</div>
                         <div class="dev-stat-label">告警设备</div>
                         <div class="dev-stat-bar"><div class="bar-inner" style="width:8%"></div></div>
                     </div>
                     <div class="dev-stat-card info">
-                        <div class="dev-stat-num" id="statTotal">0</div>
+                        <div class="dev-stat-num" id="statTotal">12</div>
                         <div class="dev-stat-label">设备总数</div>
                         <div class="dev-stat-bar"><div class="bar-inner" style="width:100%"></div></div>
                     </div>
@@ -464,7 +714,307 @@
                 </div>
 
                 <!-- 设备卡片 -->
-                <div class="device-grid" id="deviceGrid"></div>
+                <div class="device-grid" id="deviceGrid"><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">⚗️ 化工园区·一号边缘盒子</div>
+                    <div class="dev-loc">📍 江苏·苏州化工园A区 · EDGE-0001</div>
+                </div>
+                <div class="dev-status online">● 在线</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">42%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">58%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">49℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">RS485×8</span><span class="dev-tag">Modbus</span><span class="dev-tag">MQTT</span><span class="dev-tag">预处理芯片(Ⅰ类)</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">🏭 智能制造·总装车间盒子</div>
+                    <div class="dev-loc">📍 广东·深圳工厂2号厂房 · EDGE-0002</div>
+                </div>
+                <div class="dev-status online">● 在线</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">67%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">72%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">56℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">OPC-UA</span><span class="dev-tag">PLC对接</span><span class="dev-tag">视觉检测</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">⚡ 电力能源·变电站监测</div>
+                    <div class="dev-loc">📍 湖北·宜昌220kV变电站 · EDGE-0003</div>
+                </div>
+                <div class="dev-status warning">● 告警</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">81%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">85%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">68℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">IEC61850</span><span class="dev-tag">电流传感</span><span class="dev-tag">振动监测</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">🌾 智慧农业·灌溉控制站</div>
+                    <div class="dev-loc">📍 新疆·阿克苏棉田基地 · EDGE-0004</div>
+                </div>
+                <div class="dev-status online">● 在线</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">28%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">41%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">44℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">4G/LTE</span><span class="dev-tag">低功耗</span><span class="dev-tag">太阳能</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">🚚 交通物流·高速龙门架</div>
+                    <div class="dev-loc">📍 山东·济南G20高速K120 · EDGE-0005</div>
+                </div>
+                <div class="dev-status online">● 在线</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">55%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">63%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">52℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">车牌识别</span><span class="dev-tag">车型分类</span><span class="dev-tag">光纤接入</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">🏭 城市管网·供水中转站</div>
+                    <div class="dev-loc">📍 北京·通州水厂加压站 · EDGE-0006</div>
+                </div>
+                <div class="dev-status offline">● 离线</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">0%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">0%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">0℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">流量监测</span><span class="dev-tag">液位计</span><span class="dev-tag">SCADA</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">⚗️ 化工园区·危化品仓库</div>
+                    <div class="dev-loc">📍 浙江·宁波化工园B区 · EDGE-0007</div>
+                </div>
+                <div class="dev-status warning">● 告警</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">74%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">79%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">61℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">气体检测</span><span class="dev-tag">防爆认证</span><span class="dev-tag">消防联动</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">🏭 智能制造·焊接工位</div>
+                    <div class="dev-loc">📍 上海·汽车城焊装车间 · EDGE-0008</div>
+                </div>
+                <div class="dev-status online">● 在线</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">61%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">68%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">55℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">焊接质量</span><span class="dev-tag">电流波形</span><span class="dev-tag">缺陷检测</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">⚡ 电力能源·风电场A08</div>
+                    <div class="dev-loc">📍 云南·大理风电场 · EDGE-0009</div>
+                </div>
+                <div class="dev-status online">● 在线</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">37%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">52%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">47℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">风机预测维护</span><span class="dev-tag">振动分析</span><span class="dev-tag">北斗</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">🌾 智慧农业·大棚控制中心</div>
+                    <div class="dev-loc">📍 山东·寿光蔬菜基地 · EDGE-0010</div>
+                </div>
+                <div class="dev-status online">● 在线</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">31%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">44%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">43℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">卷帘通风</span><span class="dev-tag">水肥一体</span><span class="dev-tag">光照调控</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">🚚 交通物流·港口集装箱</div>
+                    <div class="dev-loc">📍 福建·厦门港海天码头 · EDGE-0011</div>
+                </div>
+                <div class="dev-status online">● 在线</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">59%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">66%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">54℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">OCR识别</span><span class="dev-tag">岸桥监测</span><span class="dev-tag">GPS定位</span>
+            </div>
+        </div><div class="device-box">
+            <div class="dev-header">
+                <div>
+                    <div class="dev-name">⚗️ 化工园区·三废处理</div>
+                    <div class="dev-loc">📍 河北·沧州化工园 · EDGE-0012</div>
+                </div>
+                <div class="dev-status online">● 在线</div>
+            </div>
+            <div class="dev-metrics">
+                <div class="dev-metric">
+                    <div class="lbl">CPU使用率</div>
+                    <div class="val">48%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">内存</div>
+                    <div class="val">60%</div>
+                </div>
+                <div class="dev-metric">
+                    <div class="lbl">温度</div>
+                    <div class="val">50℃</div>
+                </div>
+            </div>
+            <div class="dev-tags">
+                <span class="dev-tag">PH监测</span><span class="dev-tag">流量计</span><span class="dev-tag">加药控制</span>
+            </div>
+        </div></div>
 
                 <!-- 设备详情弹窗 -->
                 <div class="modal" id="deviceModal">
@@ -500,7 +1050,7 @@
                     <!-- 完整流程图 -->
                     <div class="algo-flow-chart">
                         <h3>🔄 核心算法流程总图</h3>
-                        <div id="algoFlowChart" style="height:720px;"></div>
+                        <div id="algoFlowChart" style="height: 720px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297445"><div style="position: relative; width: 325px; height: 720px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="650" height="1440" style="position: absolute; left: 0px; top: 0px; width: 325px; height: 720px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
                     </div>
 
                     <!-- 输入输出 -->
@@ -549,7 +1099,97 @@
                     <button class="btn btn-primary">＋ 新建方案</button>
                 </div>
 
-                <div class="industry-grid" id="industryGrid"></div>
+                <div class="industry-grid" id="industryGrid">
+        <div class="industry-card">
+            <div class="industry-banner">⚗️</div>
+            <div class="industry-body">
+                <div class="industry-title">化工园区·AI安全生产预警</div>
+                <div class="industry-desc">覆盖有毒/可燃气体泄漏、烟火识别、人员闯入、危化品装车等场景，适配Ⅰ类专利自适应算法，支持通过Ⅱ类边缘盒子就地预警。</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+                    <span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类算法·气体烟火多协议接入</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类芯片·4-20mA/RS485预处理</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅱ类盒子·现场防爆款</span>
+                </div>
+                <div class="industry-meta">
+                    <div class="industry-used">落地项目 <b style="color:var(--primary)">38</b> 个 · 接入设备 <b style="color:var(--success)">124</b> 台 · 内置AI模型 <b style="color:var(--warning)">8</b> 个</div>
+                    <button class="industry-btn" onclick="deployIndustry('化工园区·AI安全生产预警')">▶ 一键部署</button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="industry-card">
+            <div class="industry-banner">🏭</div>
+            <div class="industry-body">
+                <div class="industry-title">智能制造·预测性维护方案</div>
+                <div class="industry-desc">基于振动/电流/温度多维信号的设备健康评估，自动识别西门子、发那科、三菱等主流PLC协议，一键部署寿命预测模型。</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+                    <span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类算法·多PLC协议库</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类芯片·IEPE振动信号滤波</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅱ类盒子·工业导轨款</span>
+                </div>
+                <div class="industry-meta">
+                    <div class="industry-used">落地项目 <b style="color:var(--primary)">45</b> 个 · 接入设备 <b style="color:var(--success)">206</b> 台 · 内置AI模型 <b style="color:var(--warning)">9</b> 个</div>
+                    <button class="industry-btn" onclick="deployIndustry('智能制造·预测性维护方案')">▶ 一键部署</button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="industry-card">
+            <div class="industry-banner">⚡</div>
+            <div class="industry-body">
+                <div class="industry-title">电力能源·变电站智能巡检</div>
+                <div class="industry-desc">兼容IEC61850、Modbus TCP等电力协议，覆盖一次设备温度监测、GIS局放、仪表识别、SF6气体泄漏全场景。</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+                    <span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类算法·IEC61850适配</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类芯片·高频局放采样</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅱ类盒子·电力4U款</span>
+                </div>
+                <div class="industry-meta">
+                    <div class="industry-used">落地项目 <b style="color:var(--primary)">29</b> 个 · 接入设备 <b style="color:var(--success)">88</b> 台 · 内置AI模型 <b style="color:var(--warning)">6</b> 个</div>
+                    <button class="industry-btn" onclick="deployIndustry('电力能源·变电站智能巡检')">▶ 一键部署</button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="industry-card">
+            <div class="industry-banner">🌾</div>
+            <div class="industry-body">
+                <div class="industry-title">智慧农业·设施农业控制</div>
+                <div class="industry-desc">支持Modbus/LoRa/4G等农业常用链路，完成温室、灌溉、水产、畜牧的传感器接入与AI决策闭环。</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+                    <span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类算法·LoRa转JSON自动封装</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类芯片·传感器小信号放大</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅱ类盒子·太阳能低功耗款</span>
+                </div>
+                <div class="industry-meta">
+                    <div class="industry-used">落地项目 <b style="color:var(--primary)">18</b> 个 · 接入设备 <b style="color:var(--success)">62</b> 台 · 内置AI模型 <b style="color:var(--warning)">4</b> 个</div>
+                    <button class="industry-btn" onclick="deployIndustry('智慧农业·设施农业控制')">▶ 一键部署</button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="industry-card">
+            <div class="industry-banner">🚚</div>
+            <div class="industry-body">
+                <div class="industry-title">交通物流·智能卡口与集卡</div>
+                <div class="industry-desc">高速公路车牌、车型、危险品识别 + 港口OCR与岸桥联动，内置RTSP/ONVIF/GB28181视觉协议库。</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+                    <span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类算法·视频流多路适配</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类芯片·视频前端降噪</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅱ类盒子·车载防震款</span>
+                </div>
+                <div class="industry-meta">
+                    <div class="industry-used">落地项目 <b style="color:var(--primary)">22</b> 个 · 接入设备 <b style="color:var(--success)">74</b> 台 · 内置AI模型 <b style="color:var(--warning)">5</b> 个</div>
+                    <button class="industry-btn" onclick="deployIndustry('交通物流·智能卡口与集卡')">▶ 一键部署</button>
+                </div>
+            </div>
+        </div>
+    
+        <div class="industry-card">
+            <div class="industry-banner">💧</div>
+            <div class="industry-body">
+                <div class="industry-title">城市管网·供排水智能调度</div>
+                <div class="industry-desc">覆盖加压站、二次供水、污水泵站的流量计/液位/水质接入，AI预测爆管风险，联动阀门调度。</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;">
+                    <span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类算法·HART/Modbus混合协议</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅰ类芯片·电磁流量计滤波</span><span class="dev-tag" style="border-color:var(--warning);color:var(--warning);">Ⅱ类盒子·户外防水款</span>
+                </div>
+                <div class="industry-meta">
+                    <div class="industry-used">落地项目 <b style="color:var(--primary)">14</b> 个 · 接入设备 <b style="color:var(--success)">58</b> 台 · 内置AI模型 <b style="color:var(--warning)">4</b> 个</div>
+                    <button class="industry-btn" onclick="deployIndustry('城市管网·供排水智能调度')">▶ 一键部署</button>
+                </div>
+            </div>
+        </div>
+    </div>
             </section>
 
             <!-- ========== 运行日志 ========== -->
@@ -580,7 +1220,247 @@
                     <button class="btn btn-primary" onclick="renderLogs()">🔍 查询</button>
                 </div>
 
-                <div class="log-center" id="logCenterBox"></div>
+                <div class="log-center" id="logCenterBox">
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:52:29</span>
+            <span class="md">CHIP</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">盒子 EDGE-86 心跳包已接收，信号强度 97%</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:52:25</span>
+            <span class="md">CHIP</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">平台API调用完成 编号:57878 耗时:89ms</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:52:21</span>
+            <span class="md">PLAT</span>
+            <span class="lv SUCCESS">SUCCESS</span>
+            <span class="msg">盒子 EDGE-24 心跳包已接收，信号强度 83%</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:52:17</span>
+            <span class="md">DEV</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">[专利2芯片] 完成 726 条数据预处理，SNR提升 20.5dB</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:52:13</span>
+            <span class="md">CHIP</span>
+            <span class="lv WARN">WARN</span>
+            <span class="msg">盒子 EDGE-67 心跳包已接收，信号强度 86%</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:52:09</span>
+            <span class="md">CHIP</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">[专利1算法] 完成一次协议自动匹配，类型: OPC-UA</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:52:05</span>
+            <span class="md">ALG</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">盒子 EDGE-85 心跳包已接收，信号强度 92%</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:52:01</span>
+            <span class="md">PLAT</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">[专利2芯片] 完成 713 条数据预处理，SNR提升 29.3dB</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:57</span>
+            <span class="md">CHIP</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">AI模型推理执行: 异常振动，置信度 98.1%</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:53</span>
+            <span class="md">PLAT</span>
+            <span class="lv WARN">WARN</span>
+            <span class="msg">[专利2芯片] 完成 626 条数据预处理，SNR提升 29.4dB</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:49</span>
+            <span class="md">DEV</span>
+            <span class="lv SUCCESS">SUCCESS</span>
+            <span class="msg">[专利2芯片] 完成 304 条数据预处理，SNR提升 29.9dB</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:45</span>
+            <span class="md">DEV</span>
+            <span class="lv SUCCESS">SUCCESS</span>
+            <span class="msg">AI模型推理执行: 烟火识别，置信度 92.5%</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:41</span>
+            <span class="md">DEV</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">[专利2芯片] 完成 964 条数据预处理，SNR提升 24.1dB</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">PLAT</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">预处理芯片 8号通道SNR提升至48.2dB</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">CHIP</span>
+            <span class="lv DEBUG">DEBUG</span>
+            <span class="msg">接入新设备 海康DS-2CD3T 端口:554</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">CHIP</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">接入新设备 海康DS-2CD3T 端口:554</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">ALG</span>
+            <span class="lv DEBUG">DEBUG</span>
+            <span class="msg">接入新设备 海康DS-2CD3T 端口:554</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">DEV</span>
+            <span class="lv WARN">WARN</span>
+            <span class="msg">化工园区1号盒子 CPU使用率 43%，温度 51℃</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">CHIP</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">预处理芯片 8号通道SNR提升至48.2dB</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">PLAT</span>
+            <span class="lv SUCCESS">SUCCESS</span>
+            <span class="msg">自适应集成算法 新增协议匹配 MQTT→Json 成功</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">DEV</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">AI模型 异常检测v2.1 推理完成，耗时 42ms</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">CHIP</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">化工园区1号盒子 CPU使用率 43%，温度 51℃</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">PLAT</span>
+            <span class="lv WARN">WARN</span>
+            <span class="msg">预处理芯片 8号通道SNR提升至48.2dB</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">PLAT</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">自适应集成算法 新增协议匹配 MQTT→Json 成功</span>
+        </div>
+    
+        <div class="log-row">
+            <span class="ts">2026-08-28 13:51:37</span>
+            <span class="md">DEV</span>
+            <span class="lv INFO">INFO</span>
+            <span class="msg">接入新设备 海康DS-2CD3T 端口:554</span>
+        </div>
+    </div>
+            </section>
+
+            <!-- ========== 用户与权限管理 ========== -->
+            <section class="page page-users" id="page-users">
+                <div class="page-header">
+                    <div>
+                        <h2>👥 用户与权限管理</h2>
+                        <p class="page-desc">账户分级：超级管理员 → 系统管理员 → 运维人员 → 访客，4级角色联动菜单、页面与操作按钮权限</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-outline" onclick="alert('权限矩阵:\n\n👑 super_admin (400)：全部功能 + 管理超管账户\n🎖️ admin (300)：业务页面 + 用户增改(非超管)\n🛠️ operator (200)：设备/芯片/集成/日志读写\n👁️ viewer (100)：仅大屏与日志只读')">📖 查看权限矩阵</button>
+                        <button class="btn btn-primary" id="addUserBtn" onclick="newUser()">＋ 新建用户</button>
+                    </div>
+                </div>
+                <div class="device-stats-row">
+                    <div class="dev-stat-card info"><div class="dev-stat-num" id="userCountTotal">0</div><div class="dev-stat-label">账户总数</div><div class="dev-stat-bar"><div class="bar-inner" style="width:100%"></div></div></div>
+                    <div class="dev-stat-card online"><div class="dev-stat-num" id="userCountEnabled">0</div><div class="dev-stat-label">已启用</div><div class="dev-stat-bar"><div class="bar-inner" style="width:85%"></div></div></div>
+                    <div class="dev-stat-card warning"><div class="dev-stat-num" id="userCountAdmin">0</div><div class="dev-stat-label">管理员级</div><div class="dev-stat-bar"><div class="bar-inner" style="width:40%"></div></div></div>
+                    <div class="dev-stat-card offline"><div class="dev-stat-num" id="userCountOnline">0</div><div class="dev-stat-label">当前在线</div><div class="dev-stat-bar"><div class="bar-inner" style="width:10%"></div></div></div>
+                </div>
+                <div class="filter-bar">
+                    <input type="text" class="search-input" placeholder="🔍 搜索用户名/姓名/部门/邮箱..." id="userSearch" oninput="filterUsers()">
+                    <select class="filter-select" id="userRoleFilter" onchange="filterUsers()">
+                        <option value="">全部角色</option>
+                        <option value="super_admin">超级管理员</option>
+                        <option value="admin">系统管理员</option>
+                        <option value="operator">运维人员</option>
+                        <option value="viewer">访客</option>
+                    </select>
+                    <select class="filter-select" id="userStatusFilter" onchange="filterUsers()">
+                        <option value="">全部状态</option>
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+                <div class="dash-panel">
+                    <div class="panel-title"><span>账户列表</span></div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width:54px;">头像</th><th>用户</th><th>角色</th>
+                                <th>部门</th><th>邮箱</th><th>状态</th>
+                                <th>最近登录</th><th>创建日期</th><th style="width:180px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- 用户编辑弹窗 -->
+                <div class="modal" id="userModal">
+                    <div class="modal-content modal-lg">
+                        <div class="modal-header">
+                            <span id="userModalTitle">新建用户</span>
+                            <span class="modal-close" onclick="closeUserModal()">×</span>
+                        </div>
+                        <div class="modal-body">
+                            <form id="userForm"></form>
+                            <div style="margin-top:20px;display:flex;gap:8px;justify-content:flex-end;">
+                                <button class="btn btn-outline" onclick="closeUserModal()">取消</button>
+                                <button class="btn btn-primary" onclick="saveUserModal()">💾 保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
         </main>
@@ -594,5 +1474,6 @@
     <script src="js/industry.js"></script>
     <script src="js/algorithm.js"></script>
     <script src="js/logs.js"></script>
+    <script src="js/users.js"></script>
 </body>
 </html>
