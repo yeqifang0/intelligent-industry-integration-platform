@@ -3,12 +3,20 @@
    =========================== */
 
 window.init_dashboard = function() {
+    if (!window.echarts) {
+        console.warn('[dashboard] ECharts 未加载，图表无法渲染');
+        return;
+    }
     renderPatentStats();
     renderKPI();
     initMapChart();
     initRealtimeChart();
     initIndustryChart();
     initSignalCompareChart();
+    // 容器尺寸可能在首次渲染时尚未计算完成，下一帧再校正一次
+    requestAnimationFrame(() => {
+        [mapChartInst, rtChartInst, indChartInst, sigChartInst].forEach(c => c && c.resize());
+    });
 };
 
 function renderPatentStats() {
@@ -106,11 +114,14 @@ function initMapChart() {
 
 /* 实时数据流 */
 let rtChartInst = null;
+let rtTimer = null;
 let rtData = { dev: [], ai: [], chip: [], time: [] };
 function initRealtimeChart() {
     const el = document.getElementById('realtimeChart');
     if (!el) return;
     if (rtChartInst) rtChartInst.dispose();
+    if (rtTimer) clearInterval(rtTimer);
+    rtData = { dev: [], ai: [], chip: [], time: [] };
     rtChartInst = echarts.init(el);
 
     const now = Date.now();
@@ -188,7 +199,7 @@ function initRealtimeChart() {
     window.addEventListener('resize', () => rtChartInst.resize());
 
     // 定时更新
-    setInterval(() => {
+    rtTimer = setInterval(() => {
         const t = new Date();
         rtData.time.push(`${T.pad(t.getHours())}:${T.pad(t.getMinutes())}:${T.pad(t.getSeconds())}`);
         rtData.time.shift();

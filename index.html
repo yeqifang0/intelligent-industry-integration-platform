@@ -4,7 +4,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>舟靖智能集成平台</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- ECharts：优先使用本地文件（避免 CDN 在国内被墙/超时导致图表空白） -->
+    <script src="js/vendor/echarts.min.js"></script>
+    <script>
+        // 本地文件异常时回退到 CDN
+        if (!window.echarts) {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"><\/script>');
+        }
+    </script>
     <script src="js/auth.js"></script>
 </head>
 <body>
@@ -320,7 +327,7 @@
                                 <span class="tab">按省份</span>
                             </div>
                         </div>
-                        <div id="mapChart" class="chart-box" style="height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297446"><div style="position: relative; width: 329px; height: 320px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="640" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
+                        <div id="mapChart" class="chart-box" style="height: 320px;"></div>
                     </div>
                     <div class="dash-panel">
                         <div class="panel-title">
@@ -331,13 +338,13 @@
                                 <span class="tab">今日</span>
                             </div>
                         </div>
-                        <div id="realtimeChart" class="chart-box" style="height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297447"><div style="position: relative; width: 329px; height: 320px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="640" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
+                        <div id="realtimeChart" class="chart-box" style="height: 320px;"></div>
                     </div>
                     <div class="dash-panel">
                         <div class="panel-title">
                             <span>🏭 行业场景占比</span>
                         </div>
-                        <div id="industryChart" class="chart-box" style="height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297448"><div style="position: relative; width: 329px; height: 320px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="640" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 320px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
+                        <div id="industryChart" class="chart-box" style="height: 320px;"></div>
                     </div>
                 </div>
 
@@ -348,7 +355,7 @@
                             <span>🔗 芯片预处理效果对比（原始 vs 滤波后）</span>
                             <span class="chip-tag">Ⅰ类 · 预处理芯片</span>
                         </div>
-                        <div id="signalChart" class="chart-box" style="height: 280px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297449"><div style="position: relative; width: 329px; height: 280px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="560" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 280px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
+                        <div id="signalChart" class="chart-box" style="height: 280px;"></div>
                     </div>
                     <div class="dash-panel">
                         <div class="panel-title">
@@ -683,14 +690,14 @@
                             <span>🌡️ 原始信号（含噪声）- 进入芯片前</span>
                             <span class="stat-before">SNR: <span id="snrBefore">8.0</span> dB</span>
                         </div>
-                        <div id="rawSignalChart" class="chart-box" style="height: 260px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297435"><div style="position: relative; width: 329px; height: 260px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="520" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 260px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
+                        <div id="rawSignalChart" class="chart-box" style="height: 260px;"></div>
                     </div>
                     <div class="dash-panel">
                         <div class="panel-title">
                             <span>✅ 预处理后信号（干净）- 芯片输出</span>
                             <span class="stat-after">SNR: <span id="snrAfter">NaN</span> dB</span>
                         </div>
-                        <div id="cleanSignalChart" class="chart-box" style="height: 260px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297436"><div style="position: relative; width: 329px; height: 260px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="658" height="520" style="position: absolute; left: 0px; top: 0px; width: 329px; height: 260px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
+                        <div id="cleanSignalChart" class="chart-box" style="height: 260px;"></div>
                     </div>
                 </div>
 
@@ -1090,7 +1097,7 @@
                     <!-- 完整流程图 -->
                     <div class="algo-flow-chart">
                         <h3>🔄 核心算法流程总图</h3>
-                        <div id="algoFlowChart" style="height: 720px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); position: relative;" _echarts_instance_="ec_1787896297445"><div style="position: relative; width: 325px; height: 720px; padding: 0px; margin: 0px; border-width: 0px;"><canvas data-zr-dom-id="zr_0" width="650" height="1440" style="position: absolute; left: 0px; top: 0px; width: 325px; height: 720px; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); padding: 0px; margin: 0px; border-width: 0px;"></canvas></div><div class=""></div></div>
+                        <div id="algoFlowChart" style="height: 720px;"></div>
                     </div>
 
                     <!-- 输入输出 -->
